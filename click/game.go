@@ -80,6 +80,10 @@ func (g *Game) Update() error {
 		fmt.Println("Reset button pressed")
 		g.UpdateCount(0)
 	}
+	if g.exitButton.IsButtonJustPressed() {
+		fmt.Println("Exit button pressed")
+		return ebiten.Termination
+	}
 	return nil
 }
 
