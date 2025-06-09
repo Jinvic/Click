@@ -6,9 +6,7 @@ import (
 
 	"github.com/Jinvic/Click/click/component"
 	"github.com/Jinvic/Click/click/db"
-	"github.com/Jinvic/Click/click/log"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 const (
@@ -141,83 +139,11 @@ func NewGame() *Game {
 func (g *Game) Update() error {
 	switch g.status {
 	case GameStatusReady:
-		// Reset the game
-		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
-			log.Info("Reset key pressed")
-			g.UpdateCount(0)
-		}
-		if g.resetButton.IsButtonJustPressed() {
-			log.Info("Reset button pressed")
-			g.UpdateCount(0)
-		}
-		// Exit the game
-		if inpututil.IsKeyJustPressed(ebiten.KeyE) {
-			log.Info("Exit key pressed")
-			g.UpdateCount(0)
-		}
-		if g.exitButton.IsButtonJustPressed() {
-			log.Info("Exit button pressed")
-			return ebiten.Termination
-		}
-		// Start the game
-		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-			log.Info("Start key pressed")
-			g.UpdateCount(0)
-		}
-		if g.startButton.IsButtonJustPressed() {
-			log.Info("Start button pressed")
-			g.UpdateCount(0)
-			g.status = GameStatusRunning
-		}
-		// Help
-		if inpututil.IsKeyJustPressed(ebiten.KeyH) {
-			log.Info("Help key pressed")
-			g.status = GameStatusHelp
-		}
-		if g.helpButton.IsButtonJustPressed() {
-			log.Info("Help button pressed")
-			g.status = GameStatusHelp
-		}
+		g.readyLogic()
 	case GameStatusRunning:
-		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-			g.UpdateCount(g.clickCount + 1)
-		}
-		// Reset the game
-		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
-			log.Info("Reset key pressed")
-			g.UpdateCount(0)
-		}
-		if g.resetButton.IsButtonJustPressed() {
-			log.Info("Reset button pressed")
-			g.UpdateCount(0)
-		}
-		// Exit the game
-		if inpututil.IsKeyJustPressed(ebiten.KeyE) {
-			log.Info("Exit key pressed")
-			g.UpdateCount(0)
-		}
-		if g.exitButton.IsButtonJustPressed() {
-			log.Info("Exit button pressed")
-			return ebiten.Termination
-		}
-		// End the game
-		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-			log.Info("End key pressed")
-			g.status = GameStatusReady
-		}
-		if g.endButton.IsButtonJustPressed() {
-			log.Info("End button pressed")
-			g.status = GameStatusReady
-		}
+		g.runningLogic()
 	case GameStatusHelp:
-		if inpututil.IsKeyJustPressed(ebiten.KeyH) {
-			log.Info("Help key pressed")
-			g.status = GameStatusReady
-		}
-		if g.helpButton.IsButtonJustPressed() {
-			log.Info("Help button pressed")
-			g.status = GameStatusReady
-		}
+		g.helpLogic()
 	}
 	return nil
 }
@@ -232,7 +158,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 	return SCREEN_WIDTH, SCREEN_HEIGHT
 }
 
-func (g *Game) UpdateCount(c int) {
+func (g *Game) updateClickCount(c int) {
 	g.clickCount = c
 	g.scoreArea.UpdateText(fmt.Sprintf("Score: %d", g.clickCount))
 	if g.clickCount > g.user.MaxScore {

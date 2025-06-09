@@ -8,9 +8,12 @@ require (
 )
 
 require (
+	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20200707082815-5321531c36a2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/mattn/go-sqlite3 v1.14.22 // indirect
+	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
+	golang.org/x/mobile v0.0.0-20210208171126-f462b3930c8f // indirect
 )
 
 require (
@@ -18,6 +21,7 @@ require (
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
 	github.com/ebitengine/purego v0.8.0 // indirect
 	github.com/go-text/typesetting v0.2.0 // indirect
+	github.com/hajimehoshi/ebiten v1.12.12
 	github.com/jezek/xgb v1.1.1 // indirect
 	golang.org/x/sync v0.9.0 // indirect
 	golang.org/x/sys v0.25.0 // indirect
