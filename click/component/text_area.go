@@ -9,11 +9,14 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
+// 单行文本
 type TextArea struct {
-	x     int
-	y     int
-	text  string
-	image *ebiten.Image
+	x      int
+	y      int
+	width  int
+	height int
+	text   string
+	image  *ebiten.Image
 }
 
 func NewTextArea(x, y, width, height int, str string) *TextArea {
@@ -26,7 +29,7 @@ func NewTextArea(x, y, width, height int, str string) *TextArea {
 			util.NewTextFace(nil, util.DefaultFontSize),
 			util.NewCenterDrawOption(width, height))
 	}
-	return &TextArea{x: x, y: y, text: str, image: image}
+	return &TextArea{x: x, y: y, width: width, height: height, text: str, image: image}
 }
 
 func (t *TextArea) Position() (x, y int) {
@@ -46,6 +49,61 @@ func (t *TextArea) UpdateText(str string) {
 	text.Draw(t.image,
 		t.text,
 		util.NewTextFace(nil, util.DefaultFontSize),
-		util.NewCenterDrawOption(t.image.Bounds().Dx(), t.image.Bounds().Dy()))
+		util.NewCenterDrawOption(t.width, t.height))
 	log.Debug(t.text)
+}
+
+// 多行文本
+type MultiTextArea struct {
+	x      int
+	y      int
+	width  int
+	height int
+	texts  []string
+	image  *ebiten.Image
+}
+
+func NewMultiTextArea(x, y, width, height int, strs []string) *MultiTextArea {
+	image := ebiten.NewImage(width, height)
+	image.Fill(color.Gray{Y: 128})
+	if len(strs) > 0 {
+		face := util.NewTextFace(nil, util.DefaultFontSize)
+		// 计算行高
+		// lineHeight := face.Metrics().HAscent
+		lineHeight := float64(height) / float64(len(strs)+2)
+
+		// 逐行绘制文本
+		for i, str := range strs {
+			y := lineHeight + (lineHeight * float64(i)) // 每行向下偏移一个行高
+			text.Draw(image, str, face, util.NewHLeftDrawOption(width, height, y))
+		}
+	}
+
+	return &MultiTextArea{x: x, y: y, width: width, height: height, texts: strs, image: image}
+}
+
+func (t *MultiTextArea) Position() (x, y int) {
+	return t.x, t.y
+}
+
+func (t *MultiTextArea) Draw(screen *ebiten.Image) {
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(t.x), float64(t.y))
+	screen.DrawImage(t.image, op)
+}
+
+func (t *MultiTextArea) UpdateTexts(strs []string) {
+	t.image.Fill(color.Gray{Y: 128})
+	t.texts = strs
+
+	face := util.NewTextFace(nil, util.DefaultFontSize)
+	// 计算行高
+	// lineHeight := face.Metrics().HAscent
+	lineHeight := float64(t.height) / float64(len(strs)+2)
+
+	// 逐行绘制文本
+	for i, str := range strs {
+		y := lineHeight + (lineHeight * float64(i)) // 每行向下偏移一个行高
+		text.Draw(t.image, str, face, util.NewHLeftDrawOption(t.width, t.height, y))
+	}
 }

@@ -25,6 +25,7 @@ func init() {
 	DefaultFaceSource = s
 }
 
+// 水平居中,垂直居中
 func NewCenterDrawOption(width, height int) *text.DrawOptions {
 	drawOptions := &text.DrawOptions{
 		LayoutOptions: text.LayoutOptions{
@@ -33,6 +34,30 @@ func NewCenterDrawOption(width, height int) *text.DrawOptions {
 		},
 	}
 	drawOptions.GeoM.Translate(float64(width/2), float64(height/2))
+	return drawOptions
+}
+
+// 水平居中,高度指定
+func NewHCenterDrawOption(width, height int, y float64) *text.DrawOptions {
+	drawOptions := &text.DrawOptions{
+		LayoutOptions: text.LayoutOptions{
+			PrimaryAlign:   text.AlignCenter, // 水平居中
+			SecondaryAlign: text.AlignStart,
+		},
+	}
+	drawOptions.GeoM.Translate(float64(width/2), y)
+	return drawOptions
+}
+
+// 水平居左,高度指定
+func NewHLeftDrawOption(width, height int, y float64) *text.DrawOptions {
+	drawOptions := &text.DrawOptions{
+		LayoutOptions: text.LayoutOptions{
+			PrimaryAlign:   text.AlignStart,
+			SecondaryAlign: text.AlignStart,
+		},
+	}
+	drawOptions.GeoM.Translate(0, y)
 	return drawOptions
 }
 

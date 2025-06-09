@@ -2,6 +2,7 @@ package click
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Jinvic/Click/click/component"
 	"github.com/Jinvic/Click/click/db"
@@ -20,11 +21,16 @@ const (
 type GameStatus int
 
 const (
-	GameStatusReady      GameStatus = iota // 游戏未开始
-	GameStatusRunning                      // 游戏进行中
-	GameStatusGameOver                     // 游戏结束
-	GameStatusUser                         // 用户选择
-	GameStatusDifficulty                   // 难度选择
+	GameStatusReady            GameStatus = iota // 游戏未开始
+	GameStatusRunning                            // 游戏进行中
+	GameStatusGameOver                           // 游戏结束
+	GameStatusUserSwitch                         // 用户选择
+	GameStatusDifficultySwitch                   // 难度选择
+	GameStatusHelp                               // 帮助界面
+)
+
+const (
+	helpText = "Press Space to start or end the game\nPress R to reset the game\nPress E to exit the game\nPress H to show this help"
 )
 
 type Game struct {
@@ -33,14 +39,16 @@ type Game struct {
 	user       *db.User
 
 	scoreArea    *component.TextArea
-	gameArea     *component.GameArea
 	userArea     *component.TextArea
 	maxScoreArea *component.TextArea
+	helpArea     *component.MultiTextArea
+	gameArea     *component.GameArea
 
 	resetButton *component.Button
 	exitButton  *component.Button
 	startButton *component.Button
 	endButton   *component.Button
+	helpButton  *component.Button
 
 	components map[GameStatus][]component.Component
 }
@@ -52,6 +60,7 @@ func NewGame() *Game {
 	var gameArea = component.NewGameArea(0, 30, SCREEN_WIDTH, SCREEN_HEIGHT-BUTTON_HEIGHT-40) // 和其他组件上下间隔10px
 	var userArea = component.NewTextArea(SCREEN_WIDTH-120, 0, 120, 20, fmt.Sprintf("User: %s", user.Username))
 	var maxScoreArea = component.NewTextArea(0, SCREEN_HEIGHT-BUTTON_HEIGHT, 120, 20, fmt.Sprintf("Max Score: %d", user.MaxScore))
+	var helpArea = component.NewMultiTextArea(0, SCREEN_HEIGHT/4, SCREEN_WIDTH, SCREEN_HEIGHT/2, strings.Split(helpText, "\n"))
 
 	var resetButton = component.NewButton(
 		SCREEN_WIDTH-BUTTON_WIDTH-BUTTON_WIDTH-20, // 和退出按钮左右间隔20px
@@ -77,6 +86,12 @@ func NewGame() *Game {
 		BUTTON_WIDTH,
 		BUTTON_HEIGHT,
 		"End")
+	var helpButton = component.NewButton(
+		(SCREEN_WIDTH-BUTTON_WIDTH)/2, // 居中
+		0,
+		BUTTON_WIDTH,
+		BUTTON_HEIGHT,
+		"Help")
 
 	var components = make(map[GameStatus][]component.Component)
 	components[GameStatusReady] = []component.Component{
@@ -87,6 +102,7 @@ func NewGame() *Game {
 		resetButton,
 		exitButton,
 		startButton,
+		helpButton,
 	}
 	components[GameStatusRunning] = []component.Component{
 		scoreArea,
@@ -97,6 +113,10 @@ func NewGame() *Game {
 		exitButton,
 		endButton,
 	}
+	components[GameStatusHelp] = []component.Component{
+		helpArea,
+		helpButton,
+	}
 
 	return &Game{
 		status: GameStatusReady,
@@ -106,11 +126,13 @@ func NewGame() *Game {
 		gameArea:     gameArea,
 		userArea:     userArea,
 		maxScoreArea: maxScoreArea,
+		helpArea:     helpArea,
 
 		resetButton: resetButton,
 		exitButton:  exitButton,
 		startButton: startButton,
 		endButton:   endButton,
+		helpButton:  helpButton,
 
 		components: components,
 	}
@@ -119,39 +141,81 @@ func NewGame() *Game {
 func (g *Game) Update() error {
 	switch g.status {
 	case GameStatusReady:
-		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+		// Reset the game
+		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+			log.Info("Reset key pressed")
 			g.UpdateCount(0)
 		}
 		if g.resetButton.IsButtonJustPressed() {
 			log.Info("Reset button pressed")
 			g.UpdateCount(0)
 		}
+		// Exit the game
+		if inpututil.IsKeyJustPressed(ebiten.KeyE) {
+			log.Info("Exit key pressed")
+			g.UpdateCount(0)
+		}
 		if g.exitButton.IsButtonJustPressed() {
 			log.Info("Exit button pressed")
 			return ebiten.Termination
+		}
+		// Start the game
+		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+			log.Info("Start key pressed")
+			g.UpdateCount(0)
 		}
 		if g.startButton.IsButtonJustPressed() {
 			log.Info("Start button pressed")
 			g.UpdateCount(0)
 			g.status = GameStatusRunning
 		}
+		// Help
+		if inpututil.IsKeyJustPressed(ebiten.KeyH) {
+			log.Info("Help key pressed")
+			g.status = GameStatusHelp
+		}
+		if g.helpButton.IsButtonJustPressed() {
+			log.Info("Help button pressed")
+			g.status = GameStatusHelp
+		}
 	case GameStatusRunning:
 		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 			g.UpdateCount(g.clickCount + 1)
 		}
-		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+		// Reset the game
+		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+			log.Info("Reset key pressed")
 			g.UpdateCount(0)
 		}
 		if g.resetButton.IsButtonJustPressed() {
 			log.Info("Reset button pressed")
 			g.UpdateCount(0)
 		}
+		// Exit the game
+		if inpututil.IsKeyJustPressed(ebiten.KeyE) {
+			log.Info("Exit key pressed")
+			g.UpdateCount(0)
+		}
 		if g.exitButton.IsButtonJustPressed() {
 			log.Info("Exit button pressed")
 			return ebiten.Termination
 		}
+		// End the game
+		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+			log.Info("End key pressed")
+			g.status = GameStatusReady
+		}
 		if g.endButton.IsButtonJustPressed() {
 			log.Info("End button pressed")
+			g.status = GameStatusReady
+		}
+	case GameStatusHelp:
+		if inpututil.IsKeyJustPressed(ebiten.KeyH) {
+			log.Info("Help key pressed")
+			g.status = GameStatusReady
+		}
+		if g.helpButton.IsButtonJustPressed() {
+			log.Info("Help button pressed")
 			g.status = GameStatusReady
 		}
 	}
