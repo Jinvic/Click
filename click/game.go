@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Jinvic/Click/click/component"
+	"github.com/Jinvic/Click/click/db"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -17,6 +18,7 @@ const (
 
 type Game struct {
 	clickCount   int
+	user         *db.User
 	scoreArea    *component.TextArea
 	gameArea     *component.GameArea
 	userArea     *component.TextArea
@@ -27,10 +29,15 @@ type Game struct {
 }
 
 func NewGame() *Game {
+	var user db.User
+	err := db.DB.First(&user, "username = ?", "Player").Error
+	if err != nil {
+		panic(err)
+	}
 	var scoreArea = component.NewTextArea(0, 0, 120, 20, "Score: 0")
 	var gameArea = component.NewGameArea(0, 30, SCREEN_WIDTH, SCREEN_HEIGHT-BUTTON_HEIGHT-40) // 和其他组件上下间隔10px
-	var userArea = component.NewTextArea(SCREEN_WIDTH-120, 0, 120, 20, "User: Player")
-	var maxScoreArea = component.NewTextArea(0, SCREEN_HEIGHT-BUTTON_HEIGHT, 120, 20, "Max Score: 0")
+	var userArea = component.NewTextArea(SCREEN_WIDTH-120, 0, 120, 20, fmt.Sprintf("User: %s", user.Username))
+	var maxScoreArea = component.NewTextArea(0, SCREEN_HEIGHT-BUTTON_HEIGHT, 120, 20, fmt.Sprintf("Max Score: %d", user.MaxScore))
 	var resetButton = component.NewButton(
 		SCREEN_WIDTH-BUTTON_WIDTH-BUTTON_WIDTH-20, // 和退出按钮左右间隔20px
 		SCREEN_HEIGHT-BUTTON_HEIGHT,
@@ -44,6 +51,7 @@ func NewGame() *Game {
 		BUTTON_HEIGHT,
 		"Exit")
 	return &Game{
+		user:         &user,
 		scoreArea:    scoreArea,
 		gameArea:     gameArea,
 		userArea:     userArea,
@@ -88,4 +96,9 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 func (g *Game) UpdateCount(c int) {
 	g.clickCount = c
 	g.scoreArea.UpdateText(fmt.Sprintf("Score: %d", g.clickCount))
+	if g.clickCount > g.user.MaxScore {
+		g.user.MaxScore = g.clickCount
+		db.DB.Save(&g.user)
+		g.maxScoreArea.UpdateText(fmt.Sprintf("Max Score: %d", g.user.MaxScore))
+	}
 }
