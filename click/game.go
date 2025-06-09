@@ -16,26 +16,47 @@ const (
 )
 
 type Game struct {
-	clickCount  int
-	scoreArea   *component.TextArea
-	resetButton *component.Button
-	components  []component.Component
+	clickCount   int
+	scoreArea    *component.TextArea
+	gameArea     *component.GameArea
+	userArea     *component.TextArea
+	maxScoreArea *component.TextArea
+	resetButton  *component.Button
+	exitButton   *component.Button
+	components   []component.Component
 }
 
 func NewGame() *Game {
-	var scoreArea = component.NewTextArea(0, 0, 80, 20, "Score: 0")
+	var scoreArea = component.NewTextArea(0, 0, 120, 20, "Score: 0")
+	var gameArea = component.NewGameArea(0, 30, SCREEN_WIDTH, SCREEN_HEIGHT-BUTTON_HEIGHT-40) // 和其他组件上下间隔10px
+	var userArea = component.NewTextArea(SCREEN_WIDTH-120, 0, 120, 20, "User: Player")
+	var maxScoreArea = component.NewTextArea(0, SCREEN_HEIGHT-BUTTON_HEIGHT, 120, 20, "Max Score: 0")
 	var resetButton = component.NewButton(
-		SCREEN_WIDTH-BUTTON_WIDTH,
+		SCREEN_WIDTH-BUTTON_WIDTH-BUTTON_WIDTH-20, // 和退出按钮左右间隔20px
 		SCREEN_HEIGHT-BUTTON_HEIGHT,
 		BUTTON_WIDTH,
 		BUTTON_HEIGHT,
 		"Reset")
+	var exitButton = component.NewButton(
+		SCREEN_WIDTH-BUTTON_WIDTH,
+		SCREEN_HEIGHT-BUTTON_HEIGHT,
+		BUTTON_WIDTH,
+		BUTTON_HEIGHT,
+		"Exit")
 	return &Game{
-		scoreArea:   scoreArea,
-		resetButton: resetButton,
+		scoreArea:    scoreArea,
+		gameArea:     gameArea,
+		userArea:     userArea,
+		maxScoreArea: maxScoreArea,
+		resetButton:  resetButton,
+		exitButton:   exitButton,
 		components: []component.Component{
 			scoreArea,
+			gameArea,
+			userArea,
+			maxScoreArea,
 			resetButton,
+			exitButton,
 		},
 	}
 }
