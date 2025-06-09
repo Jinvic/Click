@@ -17,24 +17,42 @@ const (
 	BUTTON_HEIGHT = 20
 )
 
+type GameStatus int
+
+const (
+	GameStatusReady      GameStatus = iota // 游戏未开始
+	GameStatusRunning                      // 游戏进行中
+	GameStatusGameOver                     // 游戏结束
+	GameStatusUser                         // 用户选择
+	GameStatusDifficulty                   // 难度选择
+)
+
 type Game struct {
-	clickCount   int
-	user         *db.User
+	status     GameStatus
+	clickCount int
+	user       *db.User
+
 	scoreArea    *component.TextArea
 	gameArea     *component.GameArea
 	userArea     *component.TextArea
 	maxScoreArea *component.TextArea
-	resetButton  *component.Button
-	exitButton   *component.Button
-	components   []component.Component
+
+	resetButton *component.Button
+	exitButton  *component.Button
+	startButton *component.Button
+	endButton   *component.Button
+
+	components map[GameStatus][]component.Component
 }
 
 func NewGame() *Game {
 	var user = db.GetUser("Player")
+
 	var scoreArea = component.NewTextArea(0, 0, 120, 20, "Score: 0")
 	var gameArea = component.NewGameArea(0, 30, SCREEN_WIDTH, SCREEN_HEIGHT-BUTTON_HEIGHT-40) // 和其他组件上下间隔10px
 	var userArea = component.NewTextArea(SCREEN_WIDTH-120, 0, 120, 20, fmt.Sprintf("User: %s", user.Username))
 	var maxScoreArea = component.NewTextArea(0, SCREEN_HEIGHT-BUTTON_HEIGHT, 120, 20, fmt.Sprintf("Max Score: %d", user.MaxScore))
+
 	var resetButton = component.NewButton(
 		SCREEN_WIDTH-BUTTON_WIDTH-BUTTON_WIDTH-20, // 和退出按钮左右间隔20px
 		SCREEN_HEIGHT-BUTTON_HEIGHT,
@@ -47,45 +65,101 @@ func NewGame() *Game {
 		BUTTON_WIDTH,
 		BUTTON_HEIGHT,
 		"Exit")
+	var startButton = component.NewButton(
+		(SCREEN_WIDTH-BUTTON_WIDTH)/2, // 居中
+		SCREEN_HEIGHT-BUTTON_HEIGHT,
+		BUTTON_WIDTH,
+		BUTTON_HEIGHT,
+		"Start")
+	var endButton = component.NewButton(
+		(SCREEN_WIDTH-BUTTON_WIDTH)/2, // 居中
+		SCREEN_HEIGHT-BUTTON_HEIGHT,
+		BUTTON_WIDTH,
+		BUTTON_HEIGHT,
+		"End")
+
+	var components = make(map[GameStatus][]component.Component)
+	components[GameStatusReady] = []component.Component{
+		scoreArea,
+		gameArea,
+		userArea,
+		maxScoreArea,
+		resetButton,
+		exitButton,
+		startButton,
+	}
+	components[GameStatusRunning] = []component.Component{
+		scoreArea,
+		gameArea,
+		userArea,
+		maxScoreArea,
+		resetButton,
+		exitButton,
+		endButton,
+	}
+
 	return &Game{
-		user:         user,
+		status: GameStatusReady,
+		user:   user,
+
 		scoreArea:    scoreArea,
 		gameArea:     gameArea,
 		userArea:     userArea,
 		maxScoreArea: maxScoreArea,
-		resetButton:  resetButton,
-		exitButton:   exitButton,
-		components: []component.Component{
-			scoreArea,
-			gameArea,
-			userArea,
-			maxScoreArea,
-			resetButton,
-			exitButton,
-		},
+
+		resetButton: resetButton,
+		exitButton:  exitButton,
+		startButton: startButton,
+		endButton:   endButton,
+
+		components: components,
 	}
 }
 
 func (g *Game) Update() error {
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		g.UpdateCount(g.clickCount + 1)
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		g.UpdateCount(0)
-	}
-	if g.resetButton.IsButtonJustPressed() {
-		log.Info("Reset button pressed")
-		g.UpdateCount(0)
-	}
-	if g.exitButton.IsButtonJustPressed() {
-		log.Info("Exit button pressed")
-		return ebiten.Termination
+	switch g.status {
+	case GameStatusReady:
+		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+			g.UpdateCount(0)
+		}
+		if g.resetButton.IsButtonJustPressed() {
+			log.Info("Reset button pressed")
+			g.UpdateCount(0)
+		}
+		if g.exitButton.IsButtonJustPressed() {
+			log.Info("Exit button pressed")
+			return ebiten.Termination
+		}
+		if g.startButton.IsButtonJustPressed() {
+			log.Info("Start button pressed")
+			g.UpdateCount(0)
+			g.status = GameStatusRunning
+		}
+	case GameStatusRunning:
+		if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+			g.UpdateCount(g.clickCount + 1)
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+			g.UpdateCount(0)
+		}
+		if g.resetButton.IsButtonJustPressed() {
+			log.Info("Reset button pressed")
+			g.UpdateCount(0)
+		}
+		if g.exitButton.IsButtonJustPressed() {
+			log.Info("Exit button pressed")
+			return ebiten.Termination
+		}
+		if g.endButton.IsButtonJustPressed() {
+			log.Info("End button pressed")
+			g.status = GameStatusReady
+		}
 	}
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	for _, component := range g.components {
+	for _, component := range g.components[g.status] {
 		component.Draw(screen)
 	}
 }
