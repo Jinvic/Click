@@ -1,8 +1,9 @@
-package main
+package click
 
 import (
 	"fmt"
 
+	"github.com/Jinvic/Click/click/component"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -16,14 +17,14 @@ const (
 
 type Game struct {
 	clickCount  int
-	scoreArea   *TextArea
-	resetButton *Button
-	components  []Component
+	scoreArea   *component.TextArea
+	resetButton *component.Button
+	components  []component.Component
 }
 
 func NewGame() *Game {
-	var scoreArea = NewTextArea(0, 0, 80, 20, "Score: 0")
-	var resetButton = NewButton(
+	var scoreArea = component.NewTextArea(0, 0, 80, 20, "Score: 0")
+	var resetButton = component.NewButton(
 		SCREEN_WIDTH-BUTTON_WIDTH,
 		SCREEN_HEIGHT-BUTTON_HEIGHT,
 		BUTTON_WIDTH,
@@ -32,7 +33,7 @@ func NewGame() *Game {
 	return &Game{
 		scoreArea:   scoreArea,
 		resetButton: resetButton,
-		components: []Component{
+		components: []component.Component{
 			scoreArea,
 			resetButton,
 		},

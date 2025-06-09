@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"bytes"
@@ -9,11 +9,11 @@ import (
 )
 
 var (
-	defaultFaceSource *text.GoTextFaceSource
+	DefaultFaceSource *text.GoTextFaceSource
 )
 
 const (
-	defaultFontSize = 16
+	DefaultFontSize = 16
 )
 
 func init() {
@@ -22,10 +22,10 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defaultFaceSource = s
+	DefaultFaceSource = s
 }
 
-func newCenterDrawOption(width, height int) *text.DrawOptions {
+func NewCenterDrawOption(width, height int) *text.DrawOptions {
 	drawOptions := &text.DrawOptions{
 		LayoutOptions: text.LayoutOptions{
 			PrimaryAlign:   text.AlignCenter, // 水平居中
@@ -36,9 +36,9 @@ func newCenterDrawOption(width, height int) *text.DrawOptions {
 	return drawOptions
 }
 
-func newTextFace(faceSource *text.GoTextFaceSource, size int) *text.GoTextFace {
+func NewTextFace(faceSource *text.GoTextFaceSource, size int) *text.GoTextFace {
 	if faceSource == nil {
-		faceSource = defaultFaceSource
+		faceSource = DefaultFaceSource
 	}
 	return &text.GoTextFace{
 		Source: faceSource,

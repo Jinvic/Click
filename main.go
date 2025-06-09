@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Jinvic/Click/click"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -13,5 +14,5 @@ const (
 func main() {
 	ebiten.SetWindowSize(windowWidth, windowHeight)
 	ebiten.SetWindowTitle(windowTitle)
-	ebiten.RunGame(NewGame())
+	ebiten.RunGame(click.NewGame())
 }
