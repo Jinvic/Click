@@ -1,8 +1,7 @@
 package db
 
 import (
-	"fmt"
-
+	"github.com/Jinvic/Click/click/log"
 	"gorm.io/gorm"
 )
 
@@ -42,7 +41,7 @@ func SaveUser(user *User) {
 		// 用户不存在，创建新记录
 		DB.Create(user)
 	} else {
-		fmt.Println(result.Error)
+		log.Error(result.Error)
 	}
 }
 
@@ -66,7 +65,7 @@ func GetUser(username string) *User {
 		DB.Create(&user)
 		return &user
 	} else {
-		fmt.Println(result.Error)
+		log.Error(result.Error)
 		return nil
 	}
 }

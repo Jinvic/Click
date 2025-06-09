@@ -5,6 +5,7 @@ import (
 
 	"github.com/Jinvic/Click/click/component"
 	"github.com/Jinvic/Click/click/db"
+	"github.com/Jinvic/Click/click/log"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -73,11 +74,11 @@ func (g *Game) Update() error {
 		g.UpdateCount(0)
 	}
 	if g.resetButton.IsButtonJustPressed() {
-		fmt.Println("Reset button pressed")
+		log.Info("Reset button pressed")
 		g.UpdateCount(0)
 	}
 	if g.exitButton.IsButtonJustPressed() {
-		fmt.Println("Exit button pressed")
+		log.Info("Exit button pressed")
 		return ebiten.Termination
 	}
 	return nil
