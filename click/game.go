@@ -29,11 +29,7 @@ type Game struct {
 }
 
 func NewGame() *Game {
-	var user db.User
-	err := db.DB.First(&user, "username = ?", "Player").Error
-	if err != nil {
-		panic(err)
-	}
+	var user = db.GetUser("Player")
 	var scoreArea = component.NewTextArea(0, 0, 120, 20, "Score: 0")
 	var gameArea = component.NewGameArea(0, 30, SCREEN_WIDTH, SCREEN_HEIGHT-BUTTON_HEIGHT-40) // 和其他组件上下间隔10px
 	var userArea = component.NewTextArea(SCREEN_WIDTH-120, 0, 120, 20, fmt.Sprintf("User: %s", user.Username))
@@ -51,7 +47,7 @@ func NewGame() *Game {
 		BUTTON_HEIGHT,
 		"Exit")
 	return &Game{
-		user:         &user,
+		user:         user,
 		scoreArea:    scoreArea,
 		gameArea:     gameArea,
 		userArea:     userArea,
@@ -102,7 +98,7 @@ func (g *Game) UpdateCount(c int) {
 	g.scoreArea.UpdateText(fmt.Sprintf("Score: %d", g.clickCount))
 	if g.clickCount > g.user.MaxScore {
 		g.user.MaxScore = g.clickCount
-		db.DB.Save(&g.user)
+		db.SaveUser(g.user)
 		g.maxScoreArea.UpdateText(fmt.Sprintf("Max Score: %d", g.user.MaxScore))
 	}
 }

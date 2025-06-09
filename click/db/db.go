@@ -1,11 +1,14 @@
 package db
 
 import (
+	"sync"
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
+var mutex sync.Mutex
 
 func init() {
 	db, err := gorm.Open(sqlite.Open("click.db"), &gorm.Config{})
