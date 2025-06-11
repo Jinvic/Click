@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	SCREEN_WIDTH  = 320
-	SCREEN_HEIGHT = 240
+	SCREEN_WIDTH  = 640
+	SCREEN_HEIGHT = 480
 )
 
 type GameStatus int
@@ -55,10 +55,11 @@ type Game struct {
 func NewGame() *Game {
 	var user = db.GetUser("Player")
 
-	var scoreArea = component.NewTextArea(0, 0, 120, 20, "Score: 0")
-	var gameArea = component.NewGameArea(0, 30, SCREEN_WIDTH, SCREEN_HEIGHT-component.BUTTON_HEIGHT-40) // 和其他组件上下间隔10px
-	var userArea = component.NewTextArea(SCREEN_WIDTH-120, 0, 120, 20, fmt.Sprintf("User: %s", user.Username))
-	var maxScoreArea = component.NewTextArea(0, SCREEN_HEIGHT-component.BUTTON_HEIGHT, 120, 20, fmt.Sprintf("Max Score: %d", user.MaxScore))
+	var userArea = component.NewTextArea(SCREEN_WIDTH-220, 0, 220, 50, fmt.Sprintf("User: %s", user.Username))
+	var scoreArea = component.NewTextArea(SCREEN_WIDTH-220, 60, 220, 50, "Score: 0")
+	var maxScoreArea = component.NewTextArea(SCREEN_WIDTH-220, 120, 220, 50, fmt.Sprintf("Max Score: %d", user.MaxScore))
+	var gameArea = component.NewGameArea(0, 0, 400, SCREEN_HEIGHT)
+
 	var helpArea = component.NewMultiTextArea(0, SCREEN_HEIGHT/4, SCREEN_WIDTH, SCREEN_HEIGHT/2, strings.Split(helpText, "\n"))
 	var userSwitchArea = component.NewUserSwitchArea(0, SCREEN_HEIGHT/4, SCREEN_WIDTH, SCREEN_HEIGHT/2, user.Username)
 	var confirmArea = component.NewConfirmArea(0, SCREEN_HEIGHT/4, SCREEN_WIDTH, SCREEN_HEIGHT/2, "ConfirmArea")
@@ -76,20 +77,20 @@ func NewGame() *Game {
 		component.BUTTON_HEIGHT,
 		"Exit")
 	var startButton = component.NewButton(
-		(SCREEN_WIDTH-component.BUTTON_WIDTH)/2, // 居中
-		SCREEN_HEIGHT-component.BUTTON_HEIGHT,
+		SCREEN_WIDTH-component.BUTTON_WIDTH*2-20,
+		SCREEN_HEIGHT-component.BUTTON_HEIGHT*2-10,
 		component.BUTTON_WIDTH,
 		component.BUTTON_HEIGHT,
 		"Start")
 	var endButton = component.NewButton(
-		(SCREEN_WIDTH-component.BUTTON_WIDTH)/2, // 居中
-		SCREEN_HEIGHT-component.BUTTON_HEIGHT,
-		component.BUTTON_WIDTH,
+		SCREEN_WIDTH-component.BUTTON_WIDTH*2-20,
+		SCREEN_HEIGHT-component.BUTTON_HEIGHT*2-10,
+		component.BUTTON_WIDTH*2+20,
 		component.BUTTON_HEIGHT,
 		"End")
 	var helpButton = component.NewButton(
-		(SCREEN_WIDTH-component.BUTTON_WIDTH)/2, // 居中
-		0,
+		SCREEN_WIDTH-component.BUTTON_WIDTH,
+		SCREEN_HEIGHT-component.BUTTON_HEIGHT*2-10,
 		component.BUTTON_WIDTH,
 		component.BUTTON_HEIGHT,
 		"Help")

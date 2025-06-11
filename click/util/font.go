@@ -13,7 +13,7 @@ var (
 )
 
 const (
-	DefaultFontSize = 16
+	DefaultFontSize = 24
 )
 
 func init() {

@@ -5,18 +5,19 @@ import (
 
 	"github.com/Jinvic/Click/click/util"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
 type Button struct {
 	ComponentBasic
-	image  *ebiten.Image
+	image *ebiten.Image
 }
 
 // 默认按钮大小
 const (
-	BUTTON_WIDTH  = 60
-	BUTTON_HEIGHT = 20
+	BUTTON_WIDTH  = 100
+	BUTTON_HEIGHT = 50
 )
 
 func NewButton(x, y, width, height int, str string) *Button {
@@ -24,6 +25,7 @@ func NewButton(x, y, width, height int, str string) *Button {
 	image.Fill(color.Gray{Y: 128})
 	if len(str) > 0 {
 		// ebitenutil.DebugPrint(image, str)
+		vector.StrokeRect(image, 0, 0, float32(width), float32(height), 5, color.White, false)
 		text.Draw(image,
 			str,
 			util.NewTextFace(nil, util.DefaultFontSize),

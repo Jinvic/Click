@@ -27,23 +27,22 @@ func NewConfirmArea(x, y, width, height int, hintText string) *ConfirmArea {
 		image:          image,
 	}
 
-	buttonWidth := 60
-	hintTextArea := NewTextArea(0, 0, width-buttonWidth, height-BUTTON_HEIGHT, hintText)
+	hintTextArea := NewTextArea(0, 0, width-BUTTON_WIDTH, height-BUTTON_HEIGHT, hintText)
 	hintTextArea.father = &confirmArea
 
 	confirmButton := NewButton(
-		(width-buttonWidth)/4-buttonWidth/2,
+		(width-BUTTON_WIDTH)/4-BUTTON_WIDTH/2,
 		height-BUTTON_HEIGHT,
-		buttonWidth,
+		BUTTON_WIDTH,
 		BUTTON_HEIGHT,
 		"Confirm",
 	)
 	confirmButton.father = &confirmArea
 
 	cancelButton := NewButton(
-		(width-buttonWidth)/4*3-buttonWidth/2,
+		(width-BUTTON_WIDTH)/4*3-BUTTON_WIDTH/2,
 		height-BUTTON_HEIGHT,
-		buttonWidth, BUTTON_HEIGHT,
+		BUTTON_WIDTH, BUTTON_HEIGHT,
 		"Cancel")
 	cancelButton.father = &confirmArea
 
