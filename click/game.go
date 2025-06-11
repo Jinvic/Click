@@ -36,11 +36,12 @@ type Game struct {
 	clickCount int
 	user       *db.User
 
-	scoreArea    *component.TextArea
-	userArea     *component.TextArea
-	maxScoreArea *component.TextArea
-	helpArea     *component.MultiTextArea
-	gameArea     *component.GameArea
+	scoreArea      *component.TextArea
+	userArea       *component.TextArea
+	maxScoreArea   *component.TextArea
+	helpArea       *component.MultiTextArea
+	gameArea       *component.GameArea
+	userSwitchArea *component.UserSwitchArea
 
 	resetButton *component.Button
 	exitButton  *component.Button
@@ -59,6 +60,7 @@ func NewGame() *Game {
 	var userArea = component.NewTextArea(SCREEN_WIDTH-120, 0, 120, 20, fmt.Sprintf("User: %s", user.Username))
 	var maxScoreArea = component.NewTextArea(0, SCREEN_HEIGHT-BUTTON_HEIGHT, 120, 20, fmt.Sprintf("Max Score: %d", user.MaxScore))
 	var helpArea = component.NewMultiTextArea(0, SCREEN_HEIGHT/4, SCREEN_WIDTH, SCREEN_HEIGHT/2, strings.Split(helpText, "\n"))
+	var userSwitchArea = component.NewUserSwitchArea(0, SCREEN_HEIGHT/4, SCREEN_WIDTH, SCREEN_HEIGHT/2, user.Username)
 
 	var resetButton = component.NewButton(
 		SCREEN_WIDTH-BUTTON_WIDTH-BUTTON_WIDTH-20, // 和退出按钮左右间隔20px
@@ -115,16 +117,20 @@ func NewGame() *Game {
 		helpArea,
 		helpButton,
 	}
+	components[GameStatusUserSwitch] = []component.Component{
+		userSwitchArea,
+	}
 
 	return &Game{
 		status: GameStatusReady,
 		user:   user,
 
-		scoreArea:    scoreArea,
-		gameArea:     gameArea,
-		userArea:     userArea,
-		maxScoreArea: maxScoreArea,
-		helpArea:     helpArea,
+		scoreArea:      scoreArea,
+		userArea:       userArea,
+		maxScoreArea:   maxScoreArea,
+		helpArea:       helpArea,
+		gameArea:       gameArea,
+		userSwitchArea: userSwitchArea,
 
 		resetButton: resetButton,
 		exitButton:  exitButton,
@@ -144,6 +150,8 @@ func (g *Game) Update() error {
 		return g.updateRunning()
 	case GameStatusHelp:
 		return g.updateHelp()
+	case GameStatusUserSwitch:
+		return g.updateUserSwitch()
 	}
 	return nil
 }
@@ -157,4 +165,3 @@ func (g *Game) Draw(screen *ebiten.Image) {
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return SCREEN_WIDTH, SCREEN_HEIGHT
 }
-

@@ -50,6 +50,10 @@ func (t *TextArea) UpdateText(str string) {
 	log.Debug(t.text)
 }
 
+func (t *TextArea) GetText() string {
+	return t.text
+}
+
 // 多行文本
 type MultiTextArea struct {
 	x      int
@@ -95,4 +99,8 @@ func (t *MultiTextArea) UpdateTexts(strs []string) {
 		y := lineHeight + (lineHeight * float64(i)) // 每行向下偏移一个行高
 		text.Draw(t.image, str, face, util.NewHLeftDrawOption(t.width, t.height, y))
 	}
+}
+
+func (t *MultiTextArea) GetTexts() []string {
+	return t.texts
 }
