@@ -30,6 +30,10 @@ func (t *TextArea) Position() (x, y int) {
 	return t.x, t.y
 }
 
+func (t *TextArea) Size() (width, height int) {
+	return t.width, t.height
+}
+
 func (t *TextArea) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(t.x), float64(t.y))
@@ -65,6 +69,10 @@ func NewMultiTextArea(x, y, width, height int, strs []string) *MultiTextArea {
 
 func (t *MultiTextArea) Position() (x, y int) {
 	return t.x, t.y
+}
+
+func (t *MultiTextArea) Size() (width, height int) {
+	return t.width, t.height
 }
 
 func (t *MultiTextArea) Draw(screen *ebiten.Image) {

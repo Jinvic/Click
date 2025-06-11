@@ -5,7 +5,6 @@ import (
 
 	"github.com/Jinvic/Click/click/util"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
@@ -34,14 +33,8 @@ func (b *Button) Position() (x, y int) {
 	return b.x, b.y
 }
 
-func (b *Button) IsButtonJustPressed() bool {
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		mx, my := ebiten.CursorPosition()
-		if mx >= b.x && mx <= b.x+b.width && my >= b.y && my <= b.y+b.height {
-			return true
-		}
-	}
-	return false
+func (b *Button) Size() (width, height int) {
+	return b.width, b.height
 }
 
 func (b *Button) Draw(screen *ebiten.Image) {

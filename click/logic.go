@@ -3,6 +3,7 @@ package click
 import (
 	"fmt"
 
+	"github.com/Jinvic/Click/click/component"
 	"github.com/Jinvic/Click/click/db"
 	"github.com/Jinvic/Click/click/log"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -10,26 +11,26 @@ import (
 )
 
 func (g *Game) updateReady() error {
-	if inpututil.IsKeyJustPressed(ebiten.KeyR) || g.resetButton.IsButtonJustPressed() {
+	if inpututil.IsKeyJustPressed(ebiten.KeyR) || component.IsComponentJustClicked(g.resetButton) {
 		return g.resetGame()
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyE) || g.exitButton.IsButtonJustPressed() {
+	if inpututil.IsKeyJustPressed(ebiten.KeyE) || component.IsComponentJustClicked(g.exitButton) {
 		return g.exitGame()
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) || g.startButton.IsButtonJustPressed() {
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) || component.IsComponentJustClicked(g.startButton) {
 		return g.startGame()
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyH) || g.helpButton.IsButtonJustPressed() {
+	if inpututil.IsKeyJustPressed(ebiten.KeyH) || component.IsComponentJustClicked(g.helpButton) {
 		return g.showHelp()
 	}
 	return nil
 }
 
 func (g *Game) updateRunning() error {
-	if g.gameArea.IsGameAreaJustClicked() {
+	if component.IsComponentJustClicked(g.gameArea) {
 		if g.gameArea.IsGameTargetJustClicked() {
 			log.Info("Click target")
 			g.updateClickCount(g.clickCount + 1)
@@ -39,15 +40,15 @@ func (g *Game) updateRunning() error {
 		}
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyR) || g.resetButton.IsButtonJustPressed() {
+	if inpututil.IsKeyJustPressed(ebiten.KeyR) || component.IsComponentJustClicked(g.resetButton) {
 		return g.resetGame()
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyE) || g.exitButton.IsButtonJustPressed() {
+	if inpututil.IsKeyJustPressed(ebiten.KeyE) || component.IsComponentJustClicked(g.exitButton) {
 		return g.exitGame()
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) || g.endButton.IsButtonJustPressed() {
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) || component.IsComponentJustClicked(g.endButton) {
 		return g.endGame()
 	}
 
@@ -55,7 +56,7 @@ func (g *Game) updateRunning() error {
 }
 
 func (g *Game) updateHelp() error {
-	if inpututil.IsKeyJustPressed(ebiten.KeyH) || g.helpButton.IsButtonJustPressed() {
+	if inpututil.IsKeyJustPressed(ebiten.KeyH) || component.IsComponentJustClicked(g.helpButton) {
 		return g.closeHelp()
 	}
 	return nil

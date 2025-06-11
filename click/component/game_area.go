@@ -77,6 +77,10 @@ func (g *GameArea) Position() (x, y int) {
 	return g.x, g.y
 }
 
+func (g *GameArea) Size() (width, height int) {
+	return g.width, g.height
+}
+
 func (g *GameArea) Draw(screen *ebiten.Image) {
 	if g.ShowTarget {
 		g.UpdateTarget()
@@ -117,17 +121,6 @@ func (g *GameArea) UpdateTarget() {
 	// 确保目标在游戏区域内
 	g.target.x = math.Max(float64(g.difficulty.Radius), math.Min(g.target.x, float64(g.width-g.difficulty.Radius)))
 	g.target.y = math.Max(float64(g.difficulty.Radius), math.Min(g.target.y, float64(g.height-g.difficulty.Radius)))
-}
-
-// 检查游戏区域是否被点击
-func (g *GameArea) IsGameAreaJustClicked() bool {
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		mx, my := ebiten.CursorPosition()
-		if mx >= g.x && mx <= g.x+g.width && my >= g.y && my <= g.y+g.height {
-			return true
-		}
-	}
-	return false
 }
 
 // 检查目标是否被点击
