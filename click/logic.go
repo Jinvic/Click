@@ -61,7 +61,7 @@ func (g *Game) closeHelp() error {
 
 // 切换用户
 func (g *Game) switchUser(user *db.User) error {
-	log.Info("Switch user: ", user.Username)
+	log.Info("Switch user:", user.Username)
 	g.user = user
 	g.userArea.UpdateText(fmt.Sprintf("User: %s", g.user.Username))
 	g.scoreArea.UpdateText(fmt.Sprintf("Score: %d", 0))

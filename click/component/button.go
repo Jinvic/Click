@@ -13,6 +13,12 @@ type Button struct {
 	image  *ebiten.Image
 }
 
+// 默认按钮大小
+const (
+	BUTTON_WIDTH  = 60
+	BUTTON_HEIGHT = 20
+)
+
 func NewButton(x, y, width, height int, str string) *Button {
 	image := ebiten.NewImage(width, height)
 	image.Fill(color.Gray{Y: 128})

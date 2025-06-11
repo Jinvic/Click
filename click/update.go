@@ -2,6 +2,8 @@
 package click
 
 import (
+	"fmt"
+
 	"github.com/Jinvic/Click/click/component"
 	"github.com/Jinvic/Click/click/db"
 	"github.com/Jinvic/Click/click/log"
@@ -88,9 +90,18 @@ func (g *Game) updateUserSwitch() error {
 
 	// 按下回车键，切换用户
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-		g.status = GameStatusReady
-		newname := g.userSwitchArea.GetUsername()
-		g.switchUser(db.GetUser(newname))
+		// 二次确认
+		g.status = GameStatusConfirm
+		g.confirmArea.SetHintText(fmt.Sprintf("Switch to user: %s ?", g.userSwitchArea.GetUsername()))
+		g.confirmArea.SetOnConfirm(func() {
+			g.status = GameStatusReady
+			newname := g.userSwitchArea.GetUsername()
+			g.switchUser(db.GetUser(newname))
+			g.status = GameStatusReady
+		})
+		g.confirmArea.SetOnCancel(func() {
+			g.status = GameStatusUserSwitch
+		})
 		return nil
 	}
 
@@ -101,5 +112,21 @@ func (g *Game) updateUserSwitch() error {
 	}
 
 	g.userSwitchArea.UpdateCursorCounter()
+	return nil
+}
+
+func (g *Game) updateConfirm() error {
+	if g.confirmArea.IsConfirmButtonJustClicked() {
+		log.Debug("Confirm")
+		g.confirmArea.OnConfirm()
+		return nil
+	}
+
+	if g.confirmArea.IsCancelButtonJustClicked() {
+		log.Debug("Cancel")
+		g.confirmArea.OnCancel()
+		return nil
+	}
+
 	return nil
 }

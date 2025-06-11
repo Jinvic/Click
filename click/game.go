@@ -12,8 +12,6 @@ import (
 const (
 	SCREEN_WIDTH  = 320
 	SCREEN_HEIGHT = 240
-	BUTTON_WIDTH  = 50
-	BUTTON_HEIGHT = 20
 )
 
 type GameStatus int
@@ -25,6 +23,7 @@ const (
 	GameStatusUserSwitch                         // 用户选择
 	GameStatusDifficultySwitch                   // 难度选择
 	GameStatusHelp                               // 帮助界面
+	GameStatusConfirm                            // 确认界面
 )
 
 const (
@@ -42,6 +41,7 @@ type Game struct {
 	helpArea       *component.MultiTextArea
 	gameArea       *component.GameArea
 	userSwitchArea *component.UserSwitchArea
+	confirmArea    *component.ConfirmArea
 
 	resetButton *component.Button
 	exitButton  *component.Button
@@ -56,41 +56,42 @@ func NewGame() *Game {
 	var user = db.GetUser("Player")
 
 	var scoreArea = component.NewTextArea(0, 0, 120, 20, "Score: 0")
-	var gameArea = component.NewGameArea(0, 30, SCREEN_WIDTH, SCREEN_HEIGHT-BUTTON_HEIGHT-40) // 和其他组件上下间隔10px
+	var gameArea = component.NewGameArea(0, 30, SCREEN_WIDTH, SCREEN_HEIGHT-component.BUTTON_HEIGHT-40) // 和其他组件上下间隔10px
 	var userArea = component.NewTextArea(SCREEN_WIDTH-120, 0, 120, 20, fmt.Sprintf("User: %s", user.Username))
-	var maxScoreArea = component.NewTextArea(0, SCREEN_HEIGHT-BUTTON_HEIGHT, 120, 20, fmt.Sprintf("Max Score: %d", user.MaxScore))
+	var maxScoreArea = component.NewTextArea(0, SCREEN_HEIGHT-component.BUTTON_HEIGHT, 120, 20, fmt.Sprintf("Max Score: %d", user.MaxScore))
 	var helpArea = component.NewMultiTextArea(0, SCREEN_HEIGHT/4, SCREEN_WIDTH, SCREEN_HEIGHT/2, strings.Split(helpText, "\n"))
 	var userSwitchArea = component.NewUserSwitchArea(0, SCREEN_HEIGHT/4, SCREEN_WIDTH, SCREEN_HEIGHT/2, user.Username)
+	var confirmArea = component.NewConfirmArea(0, SCREEN_HEIGHT/4, SCREEN_WIDTH, SCREEN_HEIGHT/2, "ConfirmArea")
 
 	var resetButton = component.NewButton(
-		SCREEN_WIDTH-BUTTON_WIDTH-BUTTON_WIDTH-20, // 和退出按钮左右间隔20px
-		SCREEN_HEIGHT-BUTTON_HEIGHT,
-		BUTTON_WIDTH,
-		BUTTON_HEIGHT,
+		SCREEN_WIDTH-component.BUTTON_WIDTH-component.BUTTON_WIDTH-20, // 和退出按钮左右间隔20px
+		SCREEN_HEIGHT-component.BUTTON_HEIGHT,
+		component.BUTTON_WIDTH,
+		component.BUTTON_HEIGHT,
 		"Reset")
 	var exitButton = component.NewButton(
-		SCREEN_WIDTH-BUTTON_WIDTH,
-		SCREEN_HEIGHT-BUTTON_HEIGHT,
-		BUTTON_WIDTH,
-		BUTTON_HEIGHT,
+		SCREEN_WIDTH-component.BUTTON_WIDTH,
+		SCREEN_HEIGHT-component.BUTTON_HEIGHT,
+		component.BUTTON_WIDTH,
+		component.BUTTON_HEIGHT,
 		"Exit")
 	var startButton = component.NewButton(
-		(SCREEN_WIDTH-BUTTON_WIDTH)/2, // 居中
-		SCREEN_HEIGHT-BUTTON_HEIGHT,
-		BUTTON_WIDTH,
-		BUTTON_HEIGHT,
+		(SCREEN_WIDTH-component.BUTTON_WIDTH)/2, // 居中
+		SCREEN_HEIGHT-component.BUTTON_HEIGHT,
+		component.BUTTON_WIDTH,
+		component.BUTTON_HEIGHT,
 		"Start")
 	var endButton = component.NewButton(
-		(SCREEN_WIDTH-BUTTON_WIDTH)/2, // 居中
-		SCREEN_HEIGHT-BUTTON_HEIGHT,
-		BUTTON_WIDTH,
-		BUTTON_HEIGHT,
+		(SCREEN_WIDTH-component.BUTTON_WIDTH)/2, // 居中
+		SCREEN_HEIGHT-component.BUTTON_HEIGHT,
+		component.BUTTON_WIDTH,
+		component.BUTTON_HEIGHT,
 		"End")
 	var helpButton = component.NewButton(
-		(SCREEN_WIDTH-BUTTON_WIDTH)/2, // 居中
+		(SCREEN_WIDTH-component.BUTTON_WIDTH)/2, // 居中
 		0,
-		BUTTON_WIDTH,
-		BUTTON_HEIGHT,
+		component.BUTTON_WIDTH,
+		component.BUTTON_HEIGHT,
 		"Help")
 
 	var components = make(map[GameStatus][]component.Component)
@@ -120,6 +121,9 @@ func NewGame() *Game {
 	components[GameStatusUserSwitch] = []component.Component{
 		userSwitchArea,
 	}
+	components[GameStatusConfirm] = []component.Component{
+		confirmArea,
+	}
 
 	return &Game{
 		status: GameStatusReady,
@@ -131,6 +135,7 @@ func NewGame() *Game {
 		helpArea:       helpArea,
 		gameArea:       gameArea,
 		userSwitchArea: userSwitchArea,
+		confirmArea:    confirmArea,
 
 		resetButton: resetButton,
 		exitButton:  exitButton,
@@ -152,6 +157,8 @@ func (g *Game) Update() error {
 		return g.updateHelp()
 	case GameStatusUserSwitch:
 		return g.updateUserSwitch()
+	case GameStatusConfirm:
+		return g.updateConfirm()
 	}
 	return nil
 }
