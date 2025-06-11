@@ -9,10 +9,7 @@ import (
 )
 
 type Button struct {
-	x      int
-	y      int
-	width  int
-	height int
+	ComponentBasic
 	image  *ebiten.Image
 }
 
@@ -26,15 +23,10 @@ func NewButton(x, y, width, height int, str string) *Button {
 			util.NewTextFace(nil, util.DefaultFontSize),
 			util.NewCenterDrawOption(width, height))
 	}
-	return &Button{x: x, y: y, width: width, height: height, image: image}
-}
-
-func (b *Button) Position() (x, y int) {
-	return b.x, b.y
-}
-
-func (b *Button) Size() (width, height int) {
-	return b.width, b.height
+	return &Button{
+		ComponentBasic: *NewComponentBasic(x, y, width, height),
+		image:          image,
+	}
 }
 
 func (b *Button) Draw(screen *ebiten.Image) {

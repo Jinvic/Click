@@ -11,27 +11,20 @@ import (
 
 // 单行文本
 type TextArea struct {
-	x      int
-	y      int
-	width  int
-	height int
+	ComponentBasic
 	text   string
 	image  *ebiten.Image
 }
 
 func NewTextArea(x, y, width, height int, str string) *TextArea {
 	image := ebiten.NewImage(width, height)
-	area := TextArea{x: x, y: y, width: width, height: height, text: str, image: image}
+	area := TextArea{
+		ComponentBasic: *NewComponentBasic(x, y, width, height),
+		text:           str,
+		image:          image,
+	}
 	area.UpdateText(str)
 	return &area
-}
-
-func (t *TextArea) Position() (x, y int) {
-	return t.x, t.y
-}
-
-func (t *TextArea) Size() (width, height int) {
-	return t.width, t.height
 }
 
 func (t *TextArea) Draw(screen *ebiten.Image) {
@@ -56,27 +49,20 @@ func (t *TextArea) GetText() string {
 
 // 多行文本
 type MultiTextArea struct {
-	x      int
-	y      int
-	width  int
-	height int
+	ComponentBasic
 	texts  []string
 	image  *ebiten.Image
 }
 
 func NewMultiTextArea(x, y, width, height int, strs []string) *MultiTextArea {
 	image := ebiten.NewImage(width, height)
-	area := MultiTextArea{x: x, y: y, width: width, height: height, texts: strs, image: image}
+	area := MultiTextArea{
+		ComponentBasic: *NewComponentBasic(x, y, width, height),
+		texts:          strs,
+		image:          image,
+	}
 	area.UpdateTexts(strs)
 	return &area
-}
-
-func (t *MultiTextArea) Position() (x, y int) {
-	return t.x, t.y
-}
-
-func (t *MultiTextArea) Size() (width, height int) {
-	return t.width, t.height
 }
 
 func (t *MultiTextArea) Draw(screen *ebiten.Image) {

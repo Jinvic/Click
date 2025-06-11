@@ -13,10 +13,7 @@ import (
 )
 
 type GameArea struct {
-	x      int
-	y      int
-	width  int
-	height int
+	ComponentBasic
 	image  *ebiten.Image
 
 	difficulty GameDifficulty
@@ -63,22 +60,11 @@ func NewGameArea(x, y, width, height int) *GameArea {
 	image := ebiten.NewImage(width, height)
 	image.Fill(color.Gray{Y: 128})
 	return &GameArea{
-		x:          x,
-		y:          y,
-		width:      width,
-		height:     height,
+		ComponentBasic: *NewComponentBasic(x, y, width, height),
 		image:      image,
 		difficulty: DefaultDifficulty,
 		ShowTarget: false,
 	}
-}
-
-func (g *GameArea) Position() (x, y int) {
-	return g.x, g.y
-}
-
-func (g *GameArea) Size() (width, height int) {
-	return g.width, g.height
 }
 
 func (g *GameArea) Draw(screen *ebiten.Image) {
