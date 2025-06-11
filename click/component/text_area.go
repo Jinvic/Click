@@ -21,15 +21,9 @@ type TextArea struct {
 
 func NewTextArea(x, y, width, height int, str string) *TextArea {
 	image := ebiten.NewImage(width, height)
-	image.Fill(color.Gray{Y: 128})
-	if len(str) > 0 {
-		// ebitenutil.DebugPrint(image, text)
-		text.Draw(image,
-			str,
-			util.NewTextFace(nil, util.DefaultFontSize),
-			util.NewCenterDrawOption(width, height))
-	}
-	return &TextArea{x: x, y: y, width: width, height: height, text: str, image: image}
+	area := TextArea{x: x, y: y, width: width, height: height, text: str, image: image}
+	area.UpdateText(str)
+	return &area
 }
 
 func (t *TextArea) Position() (x, y int) {
@@ -45,7 +39,6 @@ func (t *TextArea) Draw(screen *ebiten.Image) {
 func (t *TextArea) UpdateText(str string) {
 	t.image.Fill(color.Gray{Y: 128})
 	t.text = str
-	// ebitenutil.DebugPrint(t.image, t.text)
 	text.Draw(t.image,
 		t.text,
 		util.NewTextFace(nil, util.DefaultFontSize),
@@ -65,21 +58,9 @@ type MultiTextArea struct {
 
 func NewMultiTextArea(x, y, width, height int, strs []string) *MultiTextArea {
 	image := ebiten.NewImage(width, height)
-	image.Fill(color.Gray{Y: 128})
-	if len(strs) > 0 {
-		face := util.NewTextFace(nil, util.DefaultFontSize)
-		// 计算行高
-		// lineHeight := face.Metrics().HAscent
-		lineHeight := float64(height) / float64(len(strs)+2)
-
-		// 逐行绘制文本
-		for i, str := range strs {
-			y := lineHeight + (lineHeight * float64(i)) // 每行向下偏移一个行高
-			text.Draw(image, str, face, util.NewHLeftDrawOption(width, height, y))
-		}
-	}
-
-	return &MultiTextArea{x: x, y: y, width: width, height: height, texts: strs, image: image}
+	area := MultiTextArea{x: x, y: y, width: width, height: height, texts: strs, image: image}
+	area.UpdateTexts(strs)
+	return &area
 }
 
 func (t *MultiTextArea) Position() (x, y int) {

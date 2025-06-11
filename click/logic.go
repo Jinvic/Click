@@ -29,8 +29,14 @@ func (g *Game) updateReady() error {
 }
 
 func (g *Game) updateRunning() error {
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		g.updateClickCount(g.clickCount + 1)
+	if g.gameArea.IsGameAreaJustClicked() {
+		if g.gameArea.IsGameTargetJustClicked() {
+			log.Info("Click target")
+			g.updateClickCount(g.clickCount + 1)
+		} else {
+			log.Info("Miss target")
+			return g.endGame()
+		}
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyR) || g.resetButton.IsButtonJustPressed() {
@@ -80,12 +86,16 @@ func (g *Game) startGame() error {
 	log.Info("Start game")
 	g.updateClickCount(0)
 	g.status = GameStatusRunning
+	g.gameArea.NewTarget()
+	g.gameArea.ShowTarget = true
 	return nil
 }
 
 func (g *Game) endGame() error {
 	log.Info("End game")
 	g.status = GameStatusReady
+	g.gameArea.ShowTarget = false
+	g.gameArea.Clear()
 	return nil
 }
 
