@@ -23,7 +23,7 @@ var (
 
 func init() {
 	// 设置控制台日志格式
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetFlags(log.LstdFlags)
 
 	// 创建日志目录
 	if err := os.MkdirAll("./log", 0755); err != nil {
