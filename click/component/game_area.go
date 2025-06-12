@@ -14,14 +14,24 @@ import (
 
 type GameArea struct {
 	ComponentBasic
-	image  *ebiten.Image
+	image *ebiten.Image
 
 	difficulty GameDifficulty
 	target     GameTarget
 	ShowTarget bool
 }
 
+type GameDifficultyName string
+
+const (
+	GameDifficultyNameEasy   GameDifficultyName = "Easy"
+	GameDifficultyNameMedium GameDifficultyName = "Medium"
+	GameDifficultyNameHard   GameDifficultyName = "Hard"
+	GameDifficultyNameCustom GameDifficultyName = "Custom"
+)
+
 type GameDifficulty struct {
+	Name     GameDifficultyName
 	Radius   int
 	Speed    int
 	Duration int
@@ -29,16 +39,19 @@ type GameDifficulty struct {
 
 var (
 	GameDifficultyEasy = GameDifficulty{
+		Name:     GameDifficultyNameEasy,
 		Radius:   36,
 		Speed:    4,
 		Duration: 3000,
 	}
 	GameDifficultyMedium = GameDifficulty{
+		Name:     GameDifficultyNameMedium,
 		Radius:   24,
 		Speed:    6,
 		Duration: 2000,
 	}
 	GameDifficultyHard = GameDifficulty{
+		Name:     GameDifficultyNameHard,
 		Radius:   12,
 		Speed:    8,
 		Duration: 1000,
@@ -56,14 +69,14 @@ type GameTarget struct {
 	angle float64
 }
 
-func NewGameArea(x, y, width, height int) *GameArea {
+func NewGameArea(x, y, width, height int, difficulty GameDifficulty) *GameArea {
 	image := ebiten.NewImage(width, height)
 	image.Fill(color.Gray{Y: 128})
 	return &GameArea{
 		ComponentBasic: *NewComponentBasic(x, y, width, height),
-		image:      image,
-		difficulty: DefaultDifficulty,
-		ShowTarget: false,
+		image:          image,
+		difficulty:     difficulty,
+		ShowTarget:     false,
 	}
 }
 

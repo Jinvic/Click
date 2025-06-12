@@ -27,18 +27,21 @@ const (
 )
 
 const (
-	helpText = "Press Space to start or end the game\nPress R to reset the game\nPress E to exit the game\nPress H to show this help"
+	helpText               = "Press Space to start or end the game\nPress R to reset the game\nPress E to exit the game\nPress H to show this help"
+	
 )
 
 type Game struct {
 	status     GameStatus
 	clickCount int
 	user       *db.User
+	difficulty *component.GameDifficulty
 
 	scoreArea      *component.TextArea
 	userArea       *component.TextArea
 	maxScoreArea   *component.TextArea
 	helpArea       *component.MultiTextArea
+	difficultyArea *component.DifficultyArea
 	gameArea       *component.GameArea
 	userSwitchArea *component.UserSwitchArea
 	confirmArea    *component.ConfirmArea
@@ -54,11 +57,13 @@ type Game struct {
 
 func NewGame() *Game {
 	var user = db.GetUser("Player")
+	var difficulty = component.DefaultDifficulty
 
 	var userArea = component.NewTextArea(SCREEN_WIDTH-220, 0, 220, 50, fmt.Sprintf("User: %s", user.Username))
 	var scoreArea = component.NewTextArea(SCREEN_WIDTH-220, 60, 220, 50, "Score: 0")
 	var maxScoreArea = component.NewTextArea(SCREEN_WIDTH-220, 120, 220, 50, fmt.Sprintf("Max Score: %d", user.MaxScore))
-	var gameArea = component.NewGameArea(0, 0, 400, SCREEN_HEIGHT)
+	var gameArea = component.NewGameArea(0, 0, 400, SCREEN_HEIGHT, difficulty)
+	var difficultyArea = component.NewDifficultyArea(SCREEN_WIDTH-220, 180, 220, 180, difficulty)
 
 	var helpArea = component.NewMultiTextArea(0, SCREEN_HEIGHT/4, SCREEN_WIDTH, SCREEN_HEIGHT/2, strings.Split(helpText, "\n"))
 	var userSwitchArea = component.NewUserSwitchArea(0, SCREEN_HEIGHT/4, SCREEN_WIDTH, SCREEN_HEIGHT/2, user.Username)
@@ -101,6 +106,7 @@ func NewGame() *Game {
 		gameArea,
 		userArea,
 		maxScoreArea,
+		difficultyArea,
 		resetButton,
 		exitButton,
 		startButton,
@@ -111,6 +117,7 @@ func NewGame() *Game {
 		gameArea,
 		userArea,
 		maxScoreArea,
+		difficultyArea,
 		resetButton,
 		exitButton,
 		endButton,
@@ -127,13 +134,14 @@ func NewGame() *Game {
 	}
 
 	return &Game{
-		status: GameStatusReady,
-		user:   user,
-
+		status:         GameStatusReady,
+		user:           user,
+		difficulty:     &difficulty,
 		scoreArea:      scoreArea,
 		userArea:       userArea,
 		maxScoreArea:   maxScoreArea,
 		helpArea:       helpArea,
+		difficultyArea: difficultyArea,
 		gameArea:       gameArea,
 		userSwitchArea: userSwitchArea,
 		confirmArea:    confirmArea,

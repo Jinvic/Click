@@ -4,6 +4,7 @@ package click
 import (
 	"fmt"
 
+	"github.com/Jinvic/Click/click/component"
 	"github.com/Jinvic/Click/click/db"
 	"github.com/Jinvic/Click/click/log"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -66,5 +67,14 @@ func (g *Game) switchUser(user *db.User) error {
 	g.userArea.UpdateText(fmt.Sprintf("User: %s", g.user.Username))
 	g.scoreArea.UpdateText(fmt.Sprintf("Score: %d", 0))
 	g.maxScoreArea.UpdateText(fmt.Sprintf("Max Score: %d", g.user.MaxScore))
+	return nil
+}
+
+// 设置游戏难度
+func (g *Game) setGameDifficulty(difficulty component.GameDifficulty) error {
+	log.Info("Set game difficulty:", difficulty)
+	g.difficulty = &difficulty
+	g.gameArea.SetDifficulty(difficulty)
+	g.difficultyArea.SetDifficulty(difficulty)
 	return nil
 }
