@@ -9,11 +9,19 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
+type TextAreaOption string
+
+const (
+	TextAreaOptionCenter TextAreaOption = "center"
+	TextAreaOptionLeft   TextAreaOption = "left"
+)
+
 // 单行文本
 type TextArea struct {
 	ComponentBasic
 	text   string
 	image  *ebiten.Image
+	option TextAreaOption
 }
 
 func NewTextArea(x, y, width, height int, str string) *TextArea {
@@ -22,6 +30,7 @@ func NewTextArea(x, y, width, height int, str string) *TextArea {
 		ComponentBasic: *NewComponentBasic(x, y, width, height),
 		text:           str,
 		image:          image,
+		option:         TextAreaOptionCenter,
 	}
 	area.UpdateText(str)
 	return &area
@@ -39,7 +48,7 @@ func (t *TextArea) UpdateText(str string) {
 	text.Draw(t.image,
 		t.text,
 		util.NewTextFace(nil, util.DefaultFontSize),
-		util.NewCenterDrawOption(t.width, t.height))
+		t.getDrawOption())
 	log.Debug(t.text)
 }
 
@@ -47,11 +56,27 @@ func (t *TextArea) GetText() string {
 	return t.text
 }
 
+func (t *TextArea) SetOption(option TextAreaOption) {
+	t.option = option
+}
+
+func (t *TextArea) getDrawOption() *text.DrawOptions {
+	switch t.option {
+	case TextAreaOptionCenter:
+		return util.NewCenterDrawOption(t.width, t.height)
+	case TextAreaOptionLeft:
+		return util.NewLeftDrawOption(t.width, t.height)
+	default:
+		return util.NewCenterDrawOption(t.width, t.height)
+	}
+}
+
 // 多行文本
 type MultiTextArea struct {
 	ComponentBasic
 	texts  []string
 	image  *ebiten.Image
+	option TextAreaOption
 }
 
 func NewMultiTextArea(x, y, width, height int, strs []string) *MultiTextArea {
@@ -60,6 +85,7 @@ func NewMultiTextArea(x, y, width, height int, strs []string) *MultiTextArea {
 		ComponentBasic: *NewComponentBasic(x, y, width, height),
 		texts:          strs,
 		image:          image,
+		option:         TextAreaOptionLeft,
 	}
 	area.UpdateTexts(strs)
 	return &area
@@ -83,10 +109,25 @@ func (t *MultiTextArea) UpdateTexts(strs []string) {
 	// 逐行绘制文本
 	for i, str := range strs {
 		y := lineHeight + (lineHeight * float64(i)) // 每行向下偏移一个行高
-		text.Draw(t.image, str, face, util.NewHLeftDrawOption(t.width, t.height, y))
+		text.Draw(t.image, str, face, t.getDrawOption(y))
 	}
 }
 
 func (t *MultiTextArea) GetTexts() []string {
 	return t.texts
+}
+
+func (t *MultiTextArea) SetOption(option TextAreaOption) {
+	t.option = option
+}
+
+func (t *MultiTextArea) getDrawOption(y float64) *text.DrawOptions {
+	switch t.option {
+	case TextAreaOptionCenter:
+		return util.NewHCenterDrawOption(t.width, t.height, y)
+	case TextAreaOptionLeft:
+		return util.NewHLeftDrawOption(t.width, t.height, y)
+	default:
+		return util.NewHCenterDrawOption(t.width, t.height, y)
+	}
 }
