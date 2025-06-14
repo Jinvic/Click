@@ -49,6 +49,19 @@ func NewLeftDrawOption(width, height int) *text.DrawOptions {
 	return drawOptions
 }
 
+// 水平居中,垂直居上
+func NewUpDrawOption(width, height int) *text.DrawOptions {
+	drawOptions := &text.DrawOptions{
+		LayoutOptions: text.LayoutOptions{
+			PrimaryAlign:   text.AlignCenter, // 水平居中
+			SecondaryAlign: text.AlignStart, // 垂直居上
+		},
+	}
+	drawOptions.GeoM.Translate(float64(width/2), 0)
+	return drawOptions
+}
+
+
 // 水平居中,高度指定
 func NewHCenterDrawOption(width, height int, y float64) *text.DrawOptions {
 	drawOptions := &text.DrawOptions{

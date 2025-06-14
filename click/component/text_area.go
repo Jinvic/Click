@@ -14,7 +14,17 @@ type TextAreaOption string
 const (
 	TextAreaOptionCenter TextAreaOption = "center"
 	TextAreaOptionLeft   TextAreaOption = "left"
+	TextAreaOptionUp     TextAreaOption = "up"
 )
+
+var (
+	DefaultLineHeight float64
+)
+
+func init() {
+	face := util.NewTextFace(nil, util.DefaultFontSize)
+	DefaultLineHeight = face.Metrics().HAscent
+}
 
 // 单行文本
 type TextArea struct {
@@ -58,6 +68,7 @@ func (t *TextArea) GetText() string {
 
 func (t *TextArea) SetOption(option TextAreaOption) {
 	t.option = option
+	t.UpdateText(t.text)
 }
 
 func (t *TextArea) getDrawOption() *text.DrawOptions {
@@ -66,6 +77,8 @@ func (t *TextArea) getDrawOption() *text.DrawOptions {
 		return util.NewCenterDrawOption(t.width, t.height)
 	case TextAreaOptionLeft:
 		return util.NewLeftDrawOption(t.width, t.height)
+	case TextAreaOptionUp:
+		return util.NewUpDrawOption(t.width, t.height)
 	default:
 		return util.NewCenterDrawOption(t.width, t.height)
 	}

@@ -34,6 +34,11 @@ func (g *Game) updateReady() error {
 		return nil
 	}
 
+	if component.IsComponentJustClicked(g.difficultyArea) {
+		g.status = GameStatusDifficultySwitch
+		return nil
+	}
+
 	return nil
 }
 
@@ -126,6 +131,54 @@ func (g *Game) updateConfirm() error {
 		log.Debug("Cancel")
 		g.confirmArea.OnCancel()
 		return nil
+	}
+
+	return nil
+}
+
+func (g *Game) updateDifficultySwitch() error {
+	// 按下ESC键，返回主界面
+	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		g.status = GameStatusReady
+		return nil
+	}
+
+	selected := g.difficultySwitchArea.DifficultySelectBox.GetSelected()
+	optionCount := g.difficultySwitchArea.DifficultySelectBox.GetOptionCount()
+	var selectedIndex int
+	if len(selected) > 0 {
+		selectedIndex = selected[0]
+	} else { // 没有选择选项时，默认选择第一个
+		selectedIndex = 0
+		g.difficultySwitchArea.DifficultySelectBox.Select(selectedIndex)
+	}
+
+	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+		selected := g.difficultySwitchArea.DifficultySelectBox.GetSelected()
+		selectedIndex = selected[0]
+		var difficulty *component.GameDifficulty
+		switch selectedIndex {
+		case 0:
+			difficulty = &component.GameDifficultyEasy
+		case 1:
+			difficulty = &component.GameDifficultyMedium
+		case 2:
+			difficulty = &component.GameDifficultyHard
+		}
+
+		g.setGameDifficulty(*difficulty)
+		g.status = GameStatusReady
+		return nil
+	}
+
+	// 切换选项
+	if inpututil.IsKeyJustPressed(ebiten.KeyUp) {
+		newIndex := (selectedIndex - 1 + optionCount) % optionCount
+		g.difficultySwitchArea.DifficultySelectBox.Select(newIndex)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
+		newIndex := (selectedIndex + 1) % optionCount
+		g.difficultySwitchArea.DifficultySelectBox.Select(newIndex)
 	}
 
 	return nil

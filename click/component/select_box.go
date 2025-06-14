@@ -15,13 +15,12 @@ const (
 )
 
 const (
-	SelectCursorTextSingleSelected   = "-->" // 单选选中
-	SelectCursorTextSingleUnselected = "   " // 单选未选中
+	SelectCursorTextSingleSelected   = ">>>" // 单选选中
+	SelectCursorTextSingleUnselected = "---" // 单选未选中
 	SelectCursorTextMultiSelected    = "[x]" // 多选选中
 	SelectCursorTextMultiUnselected  = "[ ]" // 多选未选中
 )
 
-// TODO
 type SelectCursor struct {
 	ComponentBasic
 	text string
@@ -51,11 +50,13 @@ type SelectOption struct {
 }
 
 func NewSelectOption(x, y, width, height int, optionText string, selectType SelectType) *SelectOption {
+	textArea := NewTextArea(x, y, width, height, optionText)
+	textArea.SetOption(TextAreaOptionLeft)
 	option := SelectOption{
 		text:           optionText,
 		cursor:         NewSelectCursor(x, y, width, height, selectType),
 		ComponentBasic: *NewComponentBasic(x, y, width, height),
-		TextArea:       *NewTextArea(x, y, width, height, optionText),
+		TextArea:       *textArea,
 	}
 	return &option
 }
@@ -113,13 +114,20 @@ func (s *SelectBox) SetOptions(optionTexts []string) {
 		option.father = s
 	}
 	s.options = options
+}
 
+func (s *SelectBox) GetOptionCount() int {
+	return len(s.options)
 }
 
 func (s *SelectBox) Draw(screen *ebiten.Image) {
 	for _, option := range s.options {
 		option.Draw(s.image)
 	}
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(s.x), float64(s.y))
+	screen.DrawImage(s.image, op)
 }
 
 func (s *SelectBox) Select(index int) {
@@ -139,4 +147,8 @@ func (s *SelectBox) Select(index int) {
 			s.options[index].Select(s.selectType)
 		}
 	}
+}
+
+func (s *SelectBox) GetSelected() []int {
+	return s.selected.ToSlice()
 }

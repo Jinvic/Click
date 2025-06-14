@@ -27,8 +27,7 @@ const (
 )
 
 const (
-	helpText               = "Press Space to start or end the game\nPress R to reset the game\nPress E to exit the game\nPress H to show this help"
-	
+	helpText = "Press Space to start or end the game\nPress R to reset the game\nPress E to exit the game\nPress H to show this help"
 )
 
 type Game struct {
@@ -37,14 +36,15 @@ type Game struct {
 	user       *db.User
 	difficulty *component.GameDifficulty
 
-	scoreArea      *component.TextArea
-	userArea       *component.TextArea
-	maxScoreArea   *component.TextArea
-	helpArea       *component.MultiTextArea
-	difficultyArea *component.DifficultyArea
-	gameArea       *component.GameArea
-	userSwitchArea *component.UserSwitchArea
-	confirmArea    *component.ConfirmArea
+	scoreArea            *component.TextArea
+	userArea             *component.TextArea
+	maxScoreArea         *component.TextArea
+	helpArea             *component.MultiTextArea
+	difficultyArea       *component.DifficultyArea
+	gameArea             *component.GameArea
+	userSwitchArea       *component.UserSwitchArea
+	confirmArea          *component.ConfirmArea
+	difficultySwitchArea *component.DifficultySwitchArea
 
 	resetButton *component.Button
 	exitButton  *component.Button
@@ -68,6 +68,7 @@ func NewGame() *Game {
 	var helpArea = component.NewMultiTextArea(0, SCREEN_HEIGHT/4, SCREEN_WIDTH, SCREEN_HEIGHT/2, strings.Split(helpText, "\n"))
 	var userSwitchArea = component.NewUserSwitchArea(0, SCREEN_HEIGHT/4, SCREEN_WIDTH, SCREEN_HEIGHT/2, user.Username)
 	var confirmArea = component.NewConfirmArea(0, SCREEN_HEIGHT/4, SCREEN_WIDTH, SCREEN_HEIGHT/2, "ConfirmArea")
+	var difficultySwitchArea = component.NewDifficultySwitchArea(0, SCREEN_HEIGHT/4, SCREEN_WIDTH, SCREEN_HEIGHT/2)
 
 	var resetButton = component.NewButton(
 		SCREEN_WIDTH-component.BUTTON_WIDTH-component.BUTTON_WIDTH-20, // 和退出按钮左右间隔20px
@@ -132,19 +133,23 @@ func NewGame() *Game {
 	components[GameStatusConfirm] = []component.Component{
 		confirmArea,
 	}
+	components[GameStatusDifficultySwitch] = []component.Component{
+		difficultySwitchArea,
+	}
 
 	return &Game{
-		status:         GameStatusReady,
-		user:           user,
-		difficulty:     &difficulty,
-		scoreArea:      scoreArea,
-		userArea:       userArea,
-		maxScoreArea:   maxScoreArea,
-		helpArea:       helpArea,
-		difficultyArea: difficultyArea,
-		gameArea:       gameArea,
-		userSwitchArea: userSwitchArea,
-		confirmArea:    confirmArea,
+		status:               GameStatusReady,
+		user:                 user,
+		difficulty:           &difficulty,
+		scoreArea:            scoreArea,
+		userArea:             userArea,
+		maxScoreArea:         maxScoreArea,
+		helpArea:             helpArea,
+		difficultyArea:       difficultyArea,
+		gameArea:             gameArea,
+		userSwitchArea:       userSwitchArea,
+		confirmArea:          confirmArea,
+		difficultySwitchArea: difficultySwitchArea,
 
 		resetButton: resetButton,
 		exitButton:  exitButton,
@@ -168,6 +173,8 @@ func (g *Game) Update() error {
 		return g.updateUserSwitch()
 	case GameStatusConfirm:
 		return g.updateConfirm()
+	case GameStatusDifficultySwitch:
+		return g.updateDifficultySwitch()
 	}
 	return nil
 }
