@@ -143,19 +143,10 @@ func (g *Game) updateDifficultySwitch() error {
 		return nil
 	}
 
-	selected := g.difficultySwitchArea.DifficultySelectBox.GetSelected()
-	optionCount := g.difficultySwitchArea.DifficultySelectBox.GetOptionCount()
-	var selectedIndex int
-	if len(selected) > 0 {
-		selectedIndex = selected[0]
-	} else { // 没有选择选项时，默认选择第一个
-		selectedIndex = 0
-		g.difficultySwitchArea.DifficultySelectBox.Select(selectedIndex)
-	}
-
+	// 按下回车键，切换难度
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 		selected := g.difficultySwitchArea.DifficultySelectBox.GetSelected()
-		selectedIndex = selected[0]
+		selectedIndex := selected[0]
 		var difficulty *component.GameDifficulty
 		switch selectedIndex {
 		case 0:
@@ -171,14 +162,9 @@ func (g *Game) updateDifficultySwitch() error {
 		return nil
 	}
 
-	// 切换选项
-	if inpututil.IsKeyJustPressed(ebiten.KeyUp) {
-		newIndex := (selectedIndex - 1 + optionCount) % optionCount
-		g.difficultySwitchArea.DifficultySelectBox.Select(newIndex)
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyDown) {
-		newIndex := (selectedIndex + 1) % optionCount
-		g.difficultySwitchArea.DifficultySelectBox.Select(newIndex)
+	err := g.difficultySwitchArea.DifficultySelectBox.Update()
+	if err != nil {
+		return err
 	}
 
 	return nil

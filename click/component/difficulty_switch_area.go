@@ -39,7 +39,9 @@ func NewDifficultySwitchArea(x, y, width, height int) *DifficultySwitchArea {
 		string(GameDifficultyNameHard),
 		// string(GameDifficultyNameCustom),
 	})
-	difficultySelectBox.Select(1) // 默认选择Medium
+	// 默认选择Medium
+	difficultySelectBox.Select(1)
+	difficultySelectBox.Choose(1)
 
 	hintTextArea.father = &difficultySwitchArea
 	difficultySelectBox.father = &difficultySwitchArea
