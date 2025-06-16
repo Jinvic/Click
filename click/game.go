@@ -6,6 +6,7 @@ import (
 
 	"github.com/Jinvic/Click/click/component"
 	"github.com/Jinvic/Click/click/db"
+	"github.com/Jinvic/Click/click/log"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -137,7 +138,7 @@ func NewGame() *Game {
 		difficultySwitchArea,
 	}
 
-	return &Game{
+	game := &Game{
 		status:               GameStatusReady,
 		user:                 user,
 		difficulty:           &difficulty,
@@ -159,6 +160,20 @@ func NewGame() *Game {
 
 		components: components,
 	}
+
+	// 设置点击目标回调
+	game.gameArea.SetOnTargetClicked(func() error {
+		log.Info("Click target")
+		game.updateClickCount(game.clickCount + 1)
+		return nil
+	})
+	// 设置错过目标回调
+	game.gameArea.SetOnTargetMissed(func() error {
+		log.Info("Miss target")
+		return game.endGame()
+	})
+
+	return game
 }
 
 func (g *Game) Update() error {

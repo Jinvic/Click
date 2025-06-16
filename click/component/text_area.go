@@ -31,6 +31,7 @@ type TextArea struct {
 	text   string
 	image  *ebiten.Image
 	option TextAreaOption
+	bgColor color.Color
 }
 
 func NewTextArea(x, y, width, height int, str string) *TextArea {
@@ -40,6 +41,7 @@ func NewTextArea(x, y, width, height int, str string) *TextArea {
 		text:           str,
 		image:          image,
 		option:         TextAreaOptionCenter,
+		bgColor:        color.Gray{Y: 128},
 	}
 	area.UpdateText(str)
 	return &area
@@ -51,8 +53,13 @@ func (t *TextArea) Draw(screen *ebiten.Image) {
 	screen.DrawImage(t.image, op)
 }
 
+func (t *TextArea) SetBgColor(color color.Color) {
+	t.bgColor = color
+	t.UpdateText(t.text)
+}
+
 func (t *TextArea) UpdateText(str string) {
-	t.image.Fill(color.Gray{Y: 128})
+	t.image.Fill(t.bgColor)
 	t.text = str
 	text.Draw(t.image,
 		t.text,

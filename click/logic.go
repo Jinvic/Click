@@ -23,6 +23,7 @@ func (g *Game) updateClickCount(c int) {
 func (g *Game) resetGame() error {
 	log.Info("Reset game")
 	g.updateClickCount(0)
+	g.gameArea.ResetGame()
 	return nil
 }
 
@@ -35,16 +36,14 @@ func (g *Game) startGame() error {
 	log.Info("Start game")
 	g.updateClickCount(0)
 	g.status = GameStatusRunning
-	g.gameArea.NewTarget()
-	g.gameArea.ShowTarget = true
+	g.gameArea.StartGame()
 	return nil
 }
 
 func (g *Game) endGame() error {
 	log.Info("End game")
 	g.status = GameStatusReady
-	g.gameArea.ShowTarget = false
-	g.gameArea.Clear()
+	g.gameArea.EndGame()
 	return nil
 }
 

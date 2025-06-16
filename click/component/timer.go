@@ -70,8 +70,8 @@ func (t *Timer) SetMode(mode TimerMode) {
 	t.mode = mode
 }
 
-func (t *Timer) SetDuration(duration time.Duration) {
-	t.duration = duration
+func (t *Timer) SetLimit(limit time.Duration) {
+	t.limit = limit
 }
 
 func (t *Timer) SetOnTimerEnd(onTimerEnd func()) {
@@ -110,6 +110,8 @@ func (t *Timer) Reset() {
 		t.duration = t.limit
 		t.savePoint = t.limit
 	}
+
+	t.UpdateText(t.FormatDuration())
 }
 
 func (t *Timer) Update() error {

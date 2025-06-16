@@ -43,14 +43,9 @@ func (g *Game) updateReady() error {
 }
 
 func (g *Game) updateRunning() error {
-	if component.IsComponentJustClicked(g.gameArea) {
-		if g.gameArea.IsGameTargetJustClicked() {
-			log.Info("Click target")
-			g.updateClickCount(g.clickCount + 1)
-		} else {
-			log.Info("Miss target")
-			return g.endGame()
-		}
+	err := g.gameArea.Update()
+	if err != nil {
+		return err
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyR) || component.IsComponentJustClicked(g.resetButton) {

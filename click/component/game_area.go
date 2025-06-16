@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"math"
 	"math/rand/v2"
+	"time"
 
 	"github.com/Jinvic/Click/click/log"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -19,6 +20,10 @@ type GameArea struct {
 	difficulty GameDifficulty
 	target     GameTarget
 	ShowTarget bool
+	timer      *Timer
+
+	onTargetClicked func() error
+	onTargetMissed  func() error
 }
 
 type GameDifficultyName string
@@ -72,19 +77,31 @@ type GameTarget struct {
 func NewGameArea(x, y, width, height int, difficulty GameDifficulty) *GameArea {
 	image := ebiten.NewImage(width, height)
 	image.Fill(color.Gray{Y: 128})
-	return &GameArea{
+	timer := NewTimer(x, y, width, height)
+	timer.SetFormat(TimerFormatSecond | TimerFormatMillisecond)
+	timer.SetMode(TimerModeCountdown)
+	timer.SetLimit(time.Duration(difficulty.Duration) * time.Millisecond)
+
+	gameArea := &GameArea{
 		ComponentBasic: *NewComponentBasic(x, y, width, height),
 		image:          image,
 		difficulty:     difficulty,
 		ShowTarget:     false,
+		timer:          timer,
 	}
+	// 设置计时结束回调
+	gameArea.timer.SetOnTimerEnd(func() {
+		gameArea.onTargetMissed()
+	})
+	return gameArea
 }
 
 func (g *GameArea) Draw(screen *ebiten.Image) {
 	if g.ShowTarget {
-		g.UpdateTarget()
 		g.DrawTarget()
 	}
+	g.timer.Draw(g.image)
+
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(g.x), float64(g.y))
 	screen.DrawImage(g.image, op)
@@ -106,6 +123,10 @@ func (g *GameArea) NewTarget() {
 
 // 更新目标位置
 func (g *GameArea) UpdateTarget() {
+	if !g.ShowTarget {
+		return
+	}
+
 	g.target.x += float64(g.difficulty.Speed) * math.Cos(g.target.angle)
 	g.target.y += float64(g.difficulty.Speed) * math.Sin(g.target.angle)
 
@@ -153,4 +174,46 @@ func (g *GameArea) Clear() {
 // 设置游戏难度
 func (g *GameArea) SetDifficulty(difficulty GameDifficulty) {
 	g.difficulty = difficulty
+}
+
+func (g *GameArea) SetOnTargetClicked(onTargetClicked func() error) {
+	g.onTargetClicked = func() error {
+		g.timer.Reset()
+		g.timer.Start()
+		return onTargetClicked()
+	}
+}
+
+func (g *GameArea) SetOnTargetMissed(onTargetMissed func() error) {
+	g.onTargetMissed = onTargetMissed
+}
+
+func (g *GameArea) Update() error {
+	if IsComponentJustClicked(g) {
+		if g.IsGameTargetJustClicked() {
+			g.onTargetClicked()
+		} else {
+			g.onTargetMissed()
+		}
+	}
+
+	g.UpdateTarget()
+	g.timer.Update()
+	return nil
+}
+
+func (g *GameArea) StartGame() {
+	g.NewTarget()
+	g.ShowTarget = true
+	g.timer.Start()
+}
+
+func (g *GameArea) EndGame() {
+	g.ShowTarget = false
+	g.Clear()
+}
+
+func (g *GameArea) ResetGame() {
+	g.image.Fill(color.Gray{Y: 128})
+	g.timer.Reset()
 }
