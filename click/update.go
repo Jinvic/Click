@@ -7,7 +7,6 @@ import (
 	"github.com/Jinvic/Click/click/component"
 	"github.com/Jinvic/Click/click/db"
 	"github.com/Jinvic/Click/click/log"
-	"github.com/Jinvic/Click/click/util"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -76,22 +75,6 @@ func (g *Game) updateHelp() error {
 }
 
 func (g *Game) updateUserSwitch() error {
-	// 输入用户名
-	runes := ebiten.AppendInputChars(nil)
-	if len(runes) > 0 {
-		username := g.userSwitchArea.GetUsername()
-		if len(username) < 10 {
-			g.userSwitchArea.SetUsername(username + string(runes[0]))
-		}
-	}
-
-	// 按下退格键，删除字符
-	if util.IsKeyLongPressed(ebiten.KeyBackspace) {
-		username := g.userSwitchArea.GetUsername()
-		if len(username) > 0 {
-			g.userSwitchArea.SetUsername(username[:len(username)-1])
-		}
-	}
 
 	// 按下回车键，切换用户
 	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
@@ -116,7 +99,11 @@ func (g *Game) updateUserSwitch() error {
 		return nil
 	}
 
-	g.userSwitchArea.UpdateCursorCounter()
+	err := g.userSwitchArea.Update()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
