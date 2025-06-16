@@ -11,7 +11,7 @@ type UserSwitchArea struct {
 	image *ebiten.Image
 
 	multiTextArea *MultiTextArea
-	textInputBox *TextInputBox
+	textInputBox  *TextInputBox
 }
 
 func NewUserSwitchArea(x, y, width, height int, username string) *UserSwitchArea {
@@ -26,7 +26,10 @@ func NewUserSwitchArea(x, y, width, height int, username string) *UserSwitchArea
 		"Enter username(max 10 characters).",
 		"Press Enter to confirm.",
 		"Press ESC to cancel."})
-	textInputBox := NewTextInputBox(x, height-2*int(DefaultLineHeight), width, 2*int(DefaultLineHeight), username, 10)
+	textInputBox := NewTextInputBox(x, height-2*int(DefaultLineHeight), width, 2*int(DefaultLineHeight))
+	textInputBox.SetText(username)
+	textInputBox.SetLimit(10)
+
 	multiTextArea.father = &area
 	textInputBox.father = &area
 	area.multiTextArea = multiTextArea

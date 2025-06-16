@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	difficultyTextTemplate = "Difficulty: %s\nRadius: %d\nSpeed: %d\nDuration: %d"
+	difficultyTextTemplate = "Difficulty:%s\nRadius:%d\nSpeed:%d\nDuration:%d"
 )
 
 type DifficultyArea struct {

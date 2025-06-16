@@ -29,12 +29,12 @@ type TextInputBox struct {
 	onCancel  func()
 }
 
-func NewTextInputBox(x, y, width, height int, text string, limit int) *TextInputBox {
+func NewTextInputBox(x, y, width, height int) *TextInputBox {
 	box := &TextInputBox{
-		TextArea: *NewTextArea(x, y, width, height, text),
-		text:     text,
+		TextArea: *NewTextArea(x, y, width, height, ""),
+		text:     "",
 		counter:  0,
-		limit:    limit,
+		limit:    50,
 	}
 	box.SetCharSet(CharSetNumbers | CharSetLowercase | CharSetUppercase)
 	return box

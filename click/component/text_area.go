@@ -3,7 +3,6 @@ package component
 import (
 	"image/color"
 
-	"github.com/Jinvic/Click/click/log"
 	"github.com/Jinvic/Click/click/util"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -59,7 +58,6 @@ func (t *TextArea) UpdateText(str string) {
 		t.text,
 		util.NewTextFace(nil, util.DefaultFontSize),
 		t.getDrawOption())
-	log.Debug(t.text)
 }
 
 func (t *TextArea) GetText() string {

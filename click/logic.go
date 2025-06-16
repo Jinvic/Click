@@ -76,5 +76,6 @@ func (g *Game) setGameDifficulty(difficulty component.GameDifficulty) error {
 	g.difficulty = &difficulty
 	g.gameArea.SetDifficulty(difficulty)
 	g.difficultyArea.SetDifficulty(difficulty)
+	g.difficultySwitchArea.SetDifficulty(difficulty)
 	return nil
 }
