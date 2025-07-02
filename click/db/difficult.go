@@ -29,22 +29,22 @@ var (
 	DifficultyEasy = Difficulty{
 		Model:    gorm.Model{ID: 1},
 		Name:     "Easy",
-		Radius:   24,
+		Radius:   25,
 		Speed:    4,
 		Duration: 2500,
 	}
 	DifficultyMedium = Difficulty{
 		Model:    gorm.Model{ID: 2},
 		Name:     "Medium",
-		Radius:   18,
-		Speed:    6,
+		Radius:   20,
+		Speed:    5,
 		Duration: 2000,
 	}
 	DifficultyHard = Difficulty{
 		Model:    gorm.Model{ID: 3},
 		Name:     "Hard",
-		Radius:   12,
-		Speed:    8,
+		Radius:   15,
+		Speed:    6,
 		Duration: 1500,
 	}
 )

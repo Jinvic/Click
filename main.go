@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	windowWidth  = 320
-	windowHeight = 240
+	windowWidth  = 640
+	windowHeight = 480
 	windowTitle  = "Click"
 )
 
