@@ -70,9 +70,6 @@ func init() {
 	GameDifficultyMedium.FromDB(&db.DifficultyMedium)
 	GameDifficultyHard.FromDB(&db.DifficultyHard)
 	DefaultDifficulty = GameDifficultyMedium
-
-	fmt.Println(GameDifficultyEasy.ID, GameDifficultyMedium.ID, GameDifficultyHard.ID)
-	fmt.Println(DefaultDifficulty.ID)
 }
 
 const (

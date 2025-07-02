@@ -28,13 +28,13 @@ func (d *Difficulty) GetHash() string {
 var (
 	DifficultyEasy = Difficulty{
 		Name:     "Easy",
-		Radius:   36,
+		Radius:   24,
 		Speed:    4,
-		Duration: 3000,
+		Duration: 2500,
 	}
 	DifficultyMedium = Difficulty{
 		Name:     "Medium",
-		Radius:   24,
+		Radius:   18,
 		Speed:    6,
 		Duration: 2000,
 	}
@@ -42,7 +42,7 @@ var (
 		Name:     "Hard",
 		Radius:   12,
 		Speed:    8,
-		Duration: 1000,
+		Duration: 1500,
 	}
 )
 
@@ -60,8 +60,6 @@ func init() {
 		DB.Create(&DifficultyMedium)
 		DB.Create(&DifficultyHard)	
 	}
-
-	fmt.Println(DifficultyEasy.ID, DifficultyMedium.ID, DifficultyHard.ID)
 }
 
 func GetDifficultyId(d *Difficulty) (id uint) {
