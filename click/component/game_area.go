@@ -182,6 +182,7 @@ func (g *GameArea) Clear() {
 // 设置游戏难度
 func (g *GameArea) SetDifficulty(difficulty GameDifficulty) {
 	g.difficulty = difficulty
+	g.timer.SetLimit(time.Duration(difficulty.Duration) * time.Millisecond)
 }
 
 func (g *GameArea) SetOnTargetClicked(onTargetClicked func() error) {
