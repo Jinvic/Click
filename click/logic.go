@@ -13,10 +13,10 @@ import (
 func (g *Game) updateClickCount(c int) {
 	g.clickCount = c
 	g.scoreArea.UpdateText(fmt.Sprintf("Score: %d", g.clickCount))
-	if g.clickCount > g.user.MaxScore {
-		g.user.MaxScore = g.clickCount
-		db.SaveUser(g.user)
-		g.maxScoreArea.UpdateText(fmt.Sprintf("Max Score: %d", g.user.MaxScore))
+	if g.clickCount > g.maxScore {
+		g.maxScore = g.clickCount
+		db.SaveScore(g.user.ID, g.difficulty.ID, g.clickCount)
+		g.maxScoreArea.UpdateText(fmt.Sprintf("Max Score: %d", g.maxScore))
 	}
 }
 
@@ -63,9 +63,12 @@ func (g *Game) closeHelp() error {
 func (g *Game) switchUser(user *db.User) error {
 	log.Info("Switch user:", user.Username)
 	g.user = user
+	g.difficulty = &component.DefaultDifficulty
+	g.maxScore = db.GetScore(g.user.ID, g.difficulty.ID)
+
 	g.userArea.UpdateText(fmt.Sprintf("User: %s", g.user.Username))
 	g.scoreArea.UpdateText(fmt.Sprintf("Score: %d", 0))
-	g.maxScoreArea.UpdateText(fmt.Sprintf("Max Score: %d", g.user.MaxScore))
+	g.maxScoreArea.UpdateText(fmt.Sprintf("Max Score: %d", g.maxScore))
 	return nil
 }
 
@@ -73,6 +76,7 @@ func (g *Game) switchUser(user *db.User) error {
 func (g *Game) setGameDifficulty(difficulty component.GameDifficulty) error {
 	log.Info("Set game difficulty:", difficulty)
 	g.difficulty = &difficulty
+	g.difficulty.ID = db.GetDifficultyId(difficulty.ToDB())
 	g.gameArea.SetDifficulty(difficulty)
 	g.difficultyArea.SetDifficulty(difficulty)
 	g.difficultySwitchArea.SetDifficulty(difficulty)

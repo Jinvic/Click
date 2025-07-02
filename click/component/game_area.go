@@ -7,6 +7,7 @@ import (
 	"math/rand/v2"
 	"time"
 
+	"github.com/Jinvic/Click/click/db"
 	"github.com/Jinvic/Click/click/log"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -36,33 +37,43 @@ const (
 )
 
 type GameDifficulty struct {
+	ID       uint
 	Name     GameDifficultyName
 	Radius   int
 	Speed    int
 	Duration int
 }
 
-var (
-	GameDifficultyEasy = GameDifficulty{
-		Name:     GameDifficultyNameEasy,
-		Radius:   36,
-		Speed:    4,
-		Duration: 3000,
+func (g *GameDifficulty) FromDB(difficulty *db.Difficulty) {
+	g.ID = difficulty.ID
+	g.Name = GameDifficultyName(difficulty.Name)
+	g.Radius = difficulty.Radius
+	g.Speed = difficulty.Speed
+	g.Duration = difficulty.Duration
+}
+
+func (g *GameDifficulty) ToDB() *db.Difficulty {
+	difficulty := &db.Difficulty{
+		Name:     string(g.Name),
+		Radius:   g.Radius,
+		Speed:    g.Speed,
+		Duration: g.Duration,
 	}
-	GameDifficultyMedium = GameDifficulty{
-		Name:     GameDifficultyNameMedium,
-		Radius:   24,
-		Speed:    6,
-		Duration: 2000,
-	}
-	GameDifficultyHard = GameDifficulty{
-		Name:     GameDifficultyNameHard,
-		Radius:   12,
-		Speed:    8,
-		Duration: 1000,
-	}
+	difficulty.Hash = difficulty.GetHash()
+	return difficulty
+}
+
+var GameDifficultyEasy, GameDifficultyMedium, GameDifficultyHard, DefaultDifficulty GameDifficulty
+
+func init() {
+	GameDifficultyEasy.FromDB(&db.DifficultyEasy)
+	GameDifficultyMedium.FromDB(&db.DifficultyMedium)
+	GameDifficultyHard.FromDB(&db.DifficultyHard)
 	DefaultDifficulty = GameDifficultyMedium
-)
+
+	fmt.Println(GameDifficultyEasy.ID, GameDifficultyMedium.ID, GameDifficultyHard.ID)
+	fmt.Println(DefaultDifficulty.ID)
+}
 
 const (
 	TOLERANCE = 10

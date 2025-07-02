@@ -8,7 +8,6 @@ import (
 type User struct {
 	gorm.Model
 	Username string `gorm:"uniqueIndex"`
-	MaxScore int
 }
 
 func init() {
@@ -20,7 +19,6 @@ func init() {
 	if count == 0 {
 		defaultUser := User{
 			Username: "Player",
-			MaxScore: 0,
 		}
 		DB.Create(&defaultUser)
 	}
@@ -30,18 +28,11 @@ func SaveUser(user *User) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	// 先查询用户是否存在
-	var existingUser User
-	result := DB.Where("username = ?", user.Username).First(&existingUser)
-
-	if result.Error == nil {
-		// 用户存在，更新记录
-		DB.Save(user)
-	} else if result.Error == gorm.ErrRecordNotFound {
-		// 用户不存在，创建新记录
-		DB.Create(user)
-	} else {
-		log.Error(result.Error)
+	err := DB.Where("username = ?", user.Username).
+		Assign(user).
+		FirstOrCreate(user).Error
+	if err != nil {
+		log.Error(err)
 	}
 }
 
@@ -49,23 +40,15 @@ func GetUser(username string) *User {
 	mutex.Lock()
 	defer mutex.Unlock()
 
-	// 先查询用户是否存在
-	var user User
-	result := DB.Where("username = ?", username).First(&user)
-
-	if result.Error == nil {
-		// 用户存在，返回用户
-		return &user
-	} else if result.Error == gorm.ErrRecordNotFound {
-		// 用户不存在，创建该用户
-		user := User{
-			Username: username,
-			MaxScore: 0,
-		}
-		DB.Create(&user)
-		return &user
-	} else {
-		log.Error(result.Error)
+	user := User{
+		Username: username,
+	}
+	err := DB.Where("username = ?", username).
+		Assign(user).
+		FirstOrCreate(&user).Error
+	if err != nil {
+		log.Error(err)
 		return nil
 	}
+	return &user
 }

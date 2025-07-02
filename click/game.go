@@ -36,6 +36,7 @@ type Game struct {
 	clickCount int
 	user       *db.User
 	difficulty *component.GameDifficulty
+	maxScore   int
 
 	scoreArea            *component.TextArea
 	userArea             *component.TextArea
@@ -62,7 +63,7 @@ func NewGame() *Game {
 
 	var userArea = component.NewTextArea(SCREEN_WIDTH-220, 0, 220, 50, fmt.Sprintf("User: %s", user.Username))
 	var scoreArea = component.NewTextArea(SCREEN_WIDTH-220, 60, 220, 50, "Score: 0")
-	var maxScoreArea = component.NewTextArea(SCREEN_WIDTH-220, 120, 220, 50, fmt.Sprintf("Max Score: %d", user.MaxScore))
+	var maxScoreArea = component.NewTextArea(SCREEN_WIDTH-220, 120, 220, 50, fmt.Sprintf("Max Score: %d", db.GetScore(user.ID, difficulty.ID)))
 	var gameArea = component.NewGameArea(0, 0, 400, SCREEN_HEIGHT, difficulty)
 	var difficultyArea = component.NewDifficultyArea(SCREEN_WIDTH-220, 180, 220, 180, difficulty)
 
