@@ -27,18 +27,21 @@ func (d *Difficulty) GetHash() string {
 
 var (
 	DifficultyEasy = Difficulty{
+		Model:    gorm.Model{ID: 1},
 		Name:     "Easy",
 		Radius:   24,
 		Speed:    4,
 		Duration: 2500,
 	}
 	DifficultyMedium = Difficulty{
+		Model:    gorm.Model{ID: 2},
 		Name:     "Medium",
 		Radius:   18,
 		Speed:    6,
 		Duration: 2000,
 	}
 	DifficultyHard = Difficulty{
+		Model:    gorm.Model{ID: 3},
 		Name:     "Hard",
 		Radius:   12,
 		Speed:    8,
