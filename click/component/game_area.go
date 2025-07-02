@@ -192,6 +192,7 @@ func (g *GameArea) Update() error {
 	if IsComponentJustClicked(g) {
 		if g.IsGameTargetJustClicked() {
 			g.onTargetClicked()
+			g.NewTarget()
 		} else {
 			g.onTargetMissed()
 		}
