@@ -1,14 +1,9 @@
 name: Go Multi-Platform Release
 
-# on:
-#   push:
-#     tags:
-#       - 'v*.*.*'
-
 on:
   push:
     branches:
-      - ci-test  # 仅在这个分支触发
+      - ci-test
     tags:
       - 'test-v*.*.*'
 
@@ -22,30 +17,33 @@ jobs:
         build:
           - os: linux
             arch: amd64
-            cgo: 1  # 启用 CGO
+            cgo: 1
+            deps: libgl1-mesa-dev xorg-dev
           - os: linux
             arch: arm64
-            cgo: 1  # 启用 CGO
+            cgo: 1
+            deps: libgl1-mesa-dev xorg-dev
           - os: windows
             arch: amd64
-            cgo: 0  # Windows 通常不需要 CGO
+            cgo: 0
           - os: darwin
             arch: amd64
-            cgo: 0  # macOS 通常不需要 CGO
+            cgo: 1  # macOS 需要启用 CGO
+            deps: gcc-multilib
           - os: darwin
             arch: arm64
-            cgo: 0  # macOS 通常不需要 CGO
+            cgo: 1  # macOS 需要启用 CGO
+            deps: gcc-multilib
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 仅 Linux 需要安装依赖
-      - name: Install Linux dependencies
-        if: matrix.build.os == 'linux'
+      # 安装所有平台所需的构建依赖
+      - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev xorg-dev
+          sudo apt-get install -y ${{ matrix.build.deps || 'gcc' }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -55,6 +53,20 @@ jobs:
       - name: Get dependencies
         run: go mod download
 
+      - name: Set up macOS cross-compiler (for Linux)
+        if: matrix.build.os == 'darwin'
+        run: |
+          # 安装 macOS 交叉编译工具链
+          sudo apt-get install -y clang gcc-multilib
+          git clone https://github.com/tpoechtrager/osxcross
+          cd osxcross
+          wget -nc https://github.com/phracker/MacOSX-SDKs/releases/download/11.3/MacOSX10.15.sdk.tar.xz
+          mv MacOSX10.15.sdk.tar.xz tarballs/
+          UNATTENDED=1 ./build.sh
+          echo "OSXCROSS_PATH=$(pwd)/target/bin" >> $GITHUB_ENV
+          echo "CC=o64-clang" >> $GITHUB_ENV
+          echo "CXX=o64-clang++" >> $GITHUB_ENV
+
       - name: Build
         run: |
           OUTPUT="click-${{ matrix.build.os }}-${{ matrix.build.arch }}"
@@ -62,11 +74,17 @@ jobs:
             OUTPUT="$OUTPUT.exe"
           fi
           
-          # 使用矩阵中的 CGO 设置
+          # macOS 需要特殊处理
+          if [ "${{ matrix.build.os }}" = "darwin" ]; then
+            export PATH=$OSXCROSS_PATH:$PATH
+            export CC=o64-clang
+            export CXX=o64-clang++
+          fi
+          
           CGO_ENABLED=${{ matrix.build.cgo }} \
           GOOS=${{ matrix.build.os }} \
           GOARCH=${{ matrix.build.arch }} \
-          go build -o "./dist/$OUTPUT" main.go
+          go build -ldflags "-s -w" -o "./dist/$OUTPUT" main.go
 
       - name: Archive artifact
         if: matrix.build.os != 'windows'
