@@ -1,0 +1,101 @@
+name: Go Multi-Platform Release
+
+# on:
+#   push:
+#     tags:
+#       - 'v*.*.*'
+
+on:
+  push:
+    branches:
+      - ci-test  # 仅在这个分支触发
+    tags:
+      - 'test-*' # 使用测试标签
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        build:
+          - os: linux
+            arch: amd64
+          - os: linux
+            arch: arm64
+          - os: windows
+            arch: amd64
+          - os: darwin
+            arch: amd64
+          - os: darwin
+            arch: arm64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with: 
+          go-version: '1.23.0'
+
+      - name: Get dependencies
+        run: go mod download
+
+      - name: Build
+        run: |
+          # 统一处理输出文件名
+          OUTPUT="click-${{ matrix.build.os }}-${{ matrix.build.arch }}"
+          if [ "${{ matrix.build.os }}" = "windows" ]; then
+            OUTPUT="$OUTPUT.exe"
+          fi
+          
+          GOOS=${{ matrix.build.os }} GOARCH=${{ matrix.build.arch }} \
+            go build -o ./dist/$OUTPUT main.go
+
+      - name: Archive artifact
+        if: matrix.build.os != 'windows'
+        run: |
+          cd dist
+          tar czf click-${{ matrix.build.os }}-${{ matrix.build.arch }}.tar.gz \
+            click-${{ matrix.build.os }}-${{ matrix.build.arch }}
+
+      - name: Archive Windows artifact
+        if: matrix.build.os == 'windows'
+        run: |
+          cd dist
+          zip click-windows-amd64.zip click-windows-amd64.exe
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: click-${{ matrix.build.os }}-${{ matrix.build.arch }}
+          path: |
+            dist/*.tar.gz
+            dist/*.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Collect release assets
+        run: |
+          mkdir release-assets
+          find artifacts -name '*.tar.gz' -exec cp {} release-assets/ \;
+          find artifacts -name '*.zip' -exec cp {} release-assets/ \;
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "Release ${{ github.ref_name }}"
+          files: release-assets/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
