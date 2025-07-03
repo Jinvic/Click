@@ -1,9 +1,16 @@
 name: Go Multi-Platform Release
 
+# on:
+#   push:
+#     tags:
+#       - 'v*.*.*'
+
 on:
   push:
+    branches:
+      - ci-test  # 仅在这个分支触发
     tags:
-      - 'v*.*.*'
+      - 'test-v*.*.*'
 
 jobs:
   build:
