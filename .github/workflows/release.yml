@@ -1,16 +1,9 @@
 name: Go Multi-Platform Release
 
-# on:
-#   push:
-#     tags:
-#       - 'v*.*.*'
-
 on:
   push:
-    branches:
-      - ci-test  # 仅在这个分支触发
     tags:
-      - 'test-*' # 使用测试标签
+      - 'v*.*.*'
 
 jobs:
   build:
@@ -22,18 +15,30 @@ jobs:
         build:
           - os: linux
             arch: amd64
+            cgo: 1  # 启用 CGO
           - os: linux
             arch: arm64
+            cgo: 1  # 启用 CGO
           - os: windows
             arch: amd64
+            cgo: 0  # Windows 通常不需要 CGO
           - os: darwin
             arch: amd64
+            cgo: 0  # macOS 通常不需要 CGO
           - os: darwin
             arch: arm64
+            cgo: 0  # macOS 通常不需要 CGO
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # 仅 Linux 需要安装依赖
+      - name: Install Linux dependencies
+        if: matrix.build.os == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev xorg-dev
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -45,14 +50,16 @@ jobs:
 
       - name: Build
         run: |
-          # 统一处理输出文件名
           OUTPUT="click-${{ matrix.build.os }}-${{ matrix.build.arch }}"
           if [ "${{ matrix.build.os }}" = "windows" ]; then
             OUTPUT="$OUTPUT.exe"
           fi
           
-          GOOS=${{ matrix.build.os }} GOARCH=${{ matrix.build.arch }} \
-            go build -o ./dist/$OUTPUT main.go
+          # 使用矩阵中的 CGO 设置
+          CGO_ENABLED=${{ matrix.build.cgo }} \
+          GOOS=${{ matrix.build.os }} \
+          GOARCH=${{ matrix.build.arch }} \
+          go build -o "./dist/$OUTPUT" main.go
 
       - name: Archive artifact
         if: matrix.build.os != 'windows'
@@ -71,9 +78,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: click-${{ matrix.build.os }}-${{ matrix.build.arch }}
-          path: |
-            dist/*.tar.gz
-            dist/*.zip
+          path: dist/*
 
   release:
     needs: build
@@ -81,7 +86,7 @@ jobs:
 
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           path: artifacts
 
@@ -92,7 +97,7 @@ jobs:
           find artifacts -name '*.zip' -exec cp {} release-assets/ \;
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
           name: "Release ${{ github.ref_name }}"
