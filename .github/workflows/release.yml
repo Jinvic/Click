@@ -1,0 +1,72 @@
+name: Go Windows Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    name: Build Windows ${{ matrix.arch }}
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
+      
+    env:
+      GOOS: windows
+      GOARCH: ${{ matrix.arch }}
+      CGO_ENABLED: 0
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with: 
+          go-version: '1.23.0'
+
+      - name: Get dependencies
+        run: go mod download
+
+      - name: Build for Windows ${{ matrix.arch }}
+        run: |
+          $output = "click-windows-${{ matrix.arch }}.exe"
+          go build -ldflags "-s -w" -o "dist/$output" main.go
+
+      - name: Archive artifact
+        run: |
+          cd dist
+          Compress-Archive -Path click-windows-${{ matrix.arch }}.exe -DestinationPath click-windows-${{ matrix.arch }}.zip
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: click-windows-${{ matrix.arch }}
+          path: dist/click-windows-${{ matrix.arch }}.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Collect release assets
+        run: |
+          mkdir release-assets
+          find artifacts -name '*.zip' -exec cp {} release-assets/ \;
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "Release ${{ github.ref_name }}"
+          files: release-assets/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
