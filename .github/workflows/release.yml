@@ -22,17 +22,17 @@ jobs:
           - os: linux
             arch: arm64
             cgo: 1
-            deps: libgl1-mesa-dev xorg-dev
+            deps: libgl1-mesa-dev xorg-dev gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
           - os: windows
             arch: amd64
             cgo: 0
           - os: darwin
             arch: amd64
-            cgo: 1  # macOS 需要启用 CGO
+            cgo: 1
             deps: gcc-multilib
           - os: darwin
             arch: arm64
-            cgo: 1  # macOS 需要启用 CGO
+            cgo: 1
             deps: gcc-multilib
 
     steps:
@@ -56,7 +56,6 @@ jobs:
       - name: Set up macOS cross-compiler (for Linux)
         if: matrix.build.os == 'darwin'
         run: |
-          # 安装 macOS 交叉编译工具链
           sudo apt-get install -y clang gcc-multilib
           git clone https://github.com/tpoechtrager/osxcross
           cd osxcross
@@ -74,11 +73,18 @@ jobs:
             OUTPUT="$OUTPUT.exe"
           fi
           
-          # macOS 需要特殊处理
+          # macOS 特殊处理
           if [ "${{ matrix.build.os }}" = "darwin" ]; then
             export PATH=$OSXCROSS_PATH:$PATH
             export CC=o64-clang
             export CXX=o64-clang++
+          fi
+          
+          # Linux ARM64 特殊处理
+          if [ "${{ matrix.build.os }}" = "linux" ] && [ "${{ matrix.build.arch }}" = "arm64" ]; then
+            export CC=aarch64-linux-gnu-gcc
+            export CXX=aarch64-linux-gnu-g++
+            export GOARM=7
           fi
           
           CGO_ENABLED=${{ matrix.build.cgo }} \
@@ -122,10 +128,10 @@ jobs:
           find artifacts -name '*.zip' -exec cp {} release-assets/ \;
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: "Release ${{ github.ref_name }}"
           files: release-assets/*
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN  }}
